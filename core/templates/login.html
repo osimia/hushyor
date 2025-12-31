@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block title %}hushyor - Вход{% endblock %}
 {% block content %}
 
@@ -7,9 +8,7 @@
         <div class="bg-white rounded-3xl shadow-2xl p-8">
             <!-- Logo -->
             <div class="flex justify-center mb-6">
-                <div class="w-20 h-20 rounded-3xl gradient-primary flex items-center justify-center shadow-soft">
-                    <span class="text-white font-bold text-3xl">H</span>
-                </div>
+                <img src="{% static 'images/logo-square.png' %}" alt="hushyor" class="w-20 h-20 rounded-3xl shadow-soft" onerror="this.onerror=null; this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iODAiIHZpZXdCb3g9IjAgMCA4MCA4MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjgwIiBoZWlnaHQ9IjgwIiByeD0iMjQiIGZpbGw9InVybCgjZ3JhZGllbnQwX2xpbmVhcl80XzEpIi8+CjxwYXRoIGQ9Ik0yNSA1MEg1NVYzMEg0NVY0MEgzNVYzMEgyNVY1MFoiIGZpbGw9IndoaXRlIi8+CjxkZWZzPgo8bGluZWFyR3JhZGllbnQgaWQ9ImdyYWRpZW50MF9saW5lYXJfNF8xIiB4MT0iMCIgeTE9IjAiIHgyPSI4MCIgeTI9IjgwIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+CjxzdG9wIHN0b3AtY29sb3I9IiM2MzY2RjEiLz4KPHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjODA1QUU1Ii8+CjwvbGluZWFyR3JhZGllbnQ+CjwvZGVmcz4KPC9zdmc+';">
             </div>
 
             <!-- Title -->
@@ -28,12 +27,16 @@
 
                 <!-- Phone Number -->
                 <div>
-                    <label for="username" class="block text-sm font-semibold text-foreground mb-2">Номер телефона</label>
+                    <label for="phone" class="block text-sm font-semibold text-foreground mb-2">Номер телефона</label>
                     <div class="relative">
                         <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                             <svg class="w-5 h-5 text-muted-foreground" fill="currentColor" viewBox="0 0 20 20"><path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"></path></svg>
                         </div>
-                        <input type="text" id="username" name="username" class="w-full pl-12 pr-4 py-3 bg-muted border-2 border-transparent rounded-xl text-foreground placeholder-muted-foreground focus:border-primary focus:outline-none transition-colors" placeholder="+7 (999) 123-45-67" required>
+                        <div class="absolute inset-y-0 left-12 flex items-center pointer-events-none text-foreground font-medium gap-1">
+                            <span>🇹🇯</span>
+                            <span>+992</span>
+                        </div>
+                        <input type="text" id="phone" name="phone" class="w-full pl-28 pr-4 py-3 bg-muted border-2 border-transparent rounded-xl text-foreground placeholder-muted-foreground focus:border-primary focus:outline-none transition-colors" placeholder="90 123 45 67" required>
                     </div>
                 </div>
 
@@ -45,11 +48,29 @@
                             <svg class="w-5 h-5 text-muted-foreground" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"></path></svg>
                         </div>
                         <input type="password" id="password" name="password" class="w-full pl-12 pr-12 py-3 bg-muted border-2 border-transparent rounded-xl text-foreground placeholder-muted-foreground focus:border-primary focus:outline-none transition-colors" placeholder="••••••••" required>
-                        <button type="button" class="absolute inset-y-0 right-0 pr-4 flex items-center">
-                            <svg class="w-5 h-5 text-muted-foreground" fill="currentColor" viewBox="0 0 20 20"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z"></path><path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"></path></svg>
+                        <button type="button" onclick="togglePassword()" class="absolute inset-y-0 right-0 pr-4 flex items-center hover:text-primary transition-colors">
+                            <svg id="eye-icon" class="w-5 h-5 text-muted-foreground" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"></path>
+                                <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"></path>
+                            </svg>
                         </button>
                     </div>
                 </div>
+
+                <script>
+                function togglePassword() {
+                    const passwordInput = document.getElementById('password');
+                    const eyeIcon = document.getElementById('eye-icon');
+                    
+                    if (passwordInput.type === 'password') {
+                        passwordInput.type = 'text';
+                        eyeIcon.innerHTML = '<path d="M3.707 2.293a1 1 0 00-1.414 1.414l14 14a1 1 0 001.414-1.414l-1.473-1.473A10.014 10.014 0 0019.542 10C18.268 5.943 14.478 3 10 3a9.958 9.958 0 00-4.512 1.074l-1.78-1.781zm4.261 4.26l1.514 1.515a2.003 2.003 0 012.45 2.45l1.514 1.514a4 4 0 00-5.478-5.478z"></path><path d="M12.454 16.697L9.75 13.992a4 4 0 01-3.742-3.741L2.335 6.578A9.98 9.98 0 00.458 10c1.274 4.057 5.065 7 9.542 7 .847 0 1.669-.105 2.454-.303z"></path>';
+                    } else {
+                        passwordInput.type = 'password';
+                        eyeIcon.innerHTML = '<path d="M10 12a2 2 0 100-4 2 2 0 000 4z"></path><path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"></path>';
+                    }
+                }
+                </script>
 
                 <!-- Submit Button -->
                 <button type="submit" class="w-full py-4 gradient-primary text-white rounded-xl font-semibold text-lg hover:opacity-90 transition-opacity shadow-soft">
@@ -57,8 +78,13 @@
                 </button>
             </form>
 
+            <!-- Forgot Password Link -->
+            <div class="mt-4 text-center">
+                <a href="/password-reset/" class="text-sm text-muted-foreground hover:text-primary transition-colors">Забыли пароль?</a>
+            </div>
+
             <!-- Register Link -->
-            <div class="mt-6 text-center">
+            <div class="mt-2 text-center">
                 <a href="/register/" class="text-primary hover:underline font-medium">Нет аккаунта? Зарегистрироваться</a>
             </div>
         </div>

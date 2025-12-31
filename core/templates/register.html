@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block title %}hushyor - Регистрация{% endblock %}
 {% block content %}
 
@@ -7,9 +8,7 @@
         <div class="bg-white rounded-3xl shadow-2xl p-8">
             <!-- Logo -->
             <div class="flex justify-center mb-6">
-                <div class="w-20 h-20 rounded-3xl gradient-primary flex items-center justify-center shadow-soft">
-                    <span class="text-white font-bold text-3xl">H</span>
-                </div>
+                <img src="{% static 'images/logo-square.png' %}" alt="hushyor" class="w-20 h-20 rounded-3xl shadow-soft" onerror="this.onerror=null; this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iODAiIHZpZXdCb3g9IjAgMCA4MCA4MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjgwIiBoZWlnaHQ9IjgwIiByeD0iMjQiIGZpbGw9InVybCgjZ3JhZGllbnQwX2xpbmVhcl80XzEpIi8+CjxwYXRoIGQ9Ik0yNSA1MEg1NVYzMEg0NVY0MEgzNVYzMEgyNVY1MFoiIGZpbGw9IndoaXRlIi8+CjxkZWZzPgo8bGluZWFyR3JhZGllbnQgaWQ9ImdyYWRpZW50MF9saW5lYXJfNF8xIiB4MT0iMCIgeTE9IjAiIHgyPSI4MCIgeTI9IjgwIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+CjxzdG9wIHN0b3AtY29sb3I9IiM2MzY2RjEiLz4KPHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjODA1QUU1Ii8+CjwvbGluZWFyR3JhZGllbnQ+CjwvZGVmcz4KPC9zdmc+';">
             </div>
 
             <!-- Title -->
@@ -48,7 +47,11 @@
                         <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                             <svg class="w-5 h-5 text-muted-foreground" fill="currentColor" viewBox="0 0 20 20"><path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"></path></svg>
                         </div>
-                        <input type="tel" id="phone" name="phone" class="w-full pl-12 pr-4 py-3 bg-muted border-2 border-transparent rounded-xl text-foreground placeholder-muted-foreground focus:border-primary focus:outline-none transition-colors" placeholder="+7 (999) 123-45-67">
+                        <div class="absolute inset-y-0 left-12 flex items-center pointer-events-none text-foreground font-medium gap-1">
+                            <span>🇹🇯</span>
+                            <span>+992</span>
+                        </div>
+                        <input type="tel" id="phone" name="phone" class="w-full pl-28 pr-4 py-3 bg-muted border-2 border-transparent rounded-xl text-foreground placeholder-muted-foreground focus:border-primary focus:outline-none transition-colors" placeholder="90 123 45 67">
                     </div>
                 </div>
 

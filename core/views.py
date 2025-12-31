@@ -219,7 +219,8 @@ def task_view(request, task_id):
 
 def leaderboard_view(request):
     from .models import Leaderboard, UserProfile
-    leaderboard = Leaderboard.objects.select_related('user_profile__user').all()
+    # Сортируем по очкам в порядке убывания
+    leaderboard = Leaderboard.objects.select_related('user_profile__user').order_by('-points')
     
     # Получаем позицию и очки текущего пользователя
     user_rank = None
@@ -266,9 +267,23 @@ def login_view(request):
             phone = form.cleaned_data.get('phone')
             password = form.cleaned_data.get('password')
             
-            # Находим username по номеру телефона
+            # Пробуем найти пользователя с номером (с + и без +)
+            user_profile = None
             try:
+                # Сначала пробуем точное совпадение
                 user_profile = UserProfile.objects.get(phone=phone)
+            except UserProfile.DoesNotExist:
+                # Если не найдено, пробуем с + в начале
+                try:
+                    user_profile = UserProfile.objects.get(phone=f'+{phone}')
+                except UserProfile.DoesNotExist:
+                    # Если не найдено, пробуем без +
+                    try:
+                        user_profile = UserProfile.objects.get(phone=phone.lstrip('+'))
+                    except UserProfile.DoesNotExist:
+                        pass
+            
+            if user_profile:
                 username = user_profile.user.username
                 user = authenticate(username=username, password=password)
                 
@@ -277,7 +292,7 @@ def login_view(request):
                     return redirect('/')
                 else:
                     error_message = 'Неверный пароль'
-            except UserProfile.DoesNotExist:
+            else:
                 error_message = 'Пользователь с таким номером не найден'
     else:
         form = CustomLoginForm()
@@ -300,6 +315,122 @@ def register_view(request):
 def logout_view(request):
     logout(request)
     return redirect('/')
+
+def password_reset_view(request):
+    """Запрос на сброс пароля по номеру телефона"""
+    from .models import UserProfile
+    import secrets
+    from django.core.cache import cache
+    import re
+    
+    if request.method == 'POST':
+        phone = request.POST.get('phone', '').strip()
+        phone_cleaned = re.sub(r'[^\d+]', '', phone)
+        
+        # Если номер не начинается с +, добавляем +992
+        if not phone_cleaned.startswith('+'):
+            phone_cleaned = '+992' + phone_cleaned
+        
+        # Пробуем найти пользователя (с + и без +)
+        user_profile = None
+        try:
+            user_profile = UserProfile.objects.get(phone=phone_cleaned)
+        except UserProfile.DoesNotExist:
+            try:
+                user_profile = UserProfile.objects.get(phone=f'+{phone_cleaned}')
+            except UserProfile.DoesNotExist:
+                try:
+                    user_profile = UserProfile.objects.get(phone=phone_cleaned.lstrip('+'))
+                except UserProfile.DoesNotExist:
+                    pass
+        
+        if user_profile:
+            # Генерируем токен для сброса пароля
+            reset_token = secrets.token_urlsafe(32)
+            
+            # Сохраняем токен в кэше на 1 час
+            cache.set(f'password_reset_{reset_token}', user_profile.user.id, 3600)
+            
+            # В реальном приложении здесь отправляется SMS или email
+            # Пока просто показываем ссылку пользователю
+            messages.success(request, f'Ссылка для сброса пароля: /password-reset-confirm/{reset_token}/')
+        else:
+            messages.error(request, 'Пользователь с таким номером телефона не найден')
+    
+    return render(request, 'password_reset.html')
+
+def password_reset_confirm_view(request, token):
+    """Установка нового пароля по токену"""
+    from django.core.cache import cache
+    from django.contrib.auth.models import User
+    
+    # Проверяем токен
+    user_id = cache.get(f'password_reset_{token}')
+    
+    if not user_id:
+        messages.error(request, 'Ссылка для сброса пароля недействительна или истекла')
+        return redirect('/login/')
+    
+    if request.method == 'POST':
+        password1 = request.POST.get('password1')
+        password2 = request.POST.get('password2')
+        
+        if password1 != password2:
+            messages.error(request, 'Пароли не совпадают')
+        elif len(password1) < 8:
+            messages.error(request, 'Пароль должен содержать минимум 8 символов')
+        else:
+            try:
+                user = User.objects.get(id=user_id)
+                user.set_password(password1)
+                user.save()
+                
+                # Удаляем использованный токен
+                cache.delete(f'password_reset_{token}')
+                
+                messages.success(request, 'Пароль успешно изменен! Теперь вы можете войти с новым паролем.')
+                return redirect('/login/')
+            except User.DoesNotExist:
+                messages.error(request, 'Ошибка при сбросе пароля')
+    
+    return render(request, 'password_reset_confirm.html')
+
+def admin_password_reset_view(request):
+    """Административная страница сброса пароля"""
+    from django.contrib.auth.decorators import login_required
+    from django.contrib.auth.decorators import user_passes_test
+    from .models import UserProfile
+    
+    # Проверяем, является ли пользователь суперпользователем или персоналом
+    if not request.user.is_superuser and not request.user.is_staff:
+        messages.error(request, 'Доступ запрещен. Требуются права администратора.')
+        return redirect('/login/')
+    
+    # Получаем всех пользователей с профилями
+    users = User.objects.select_related('userprofile').all()
+    
+    if request.method == 'POST':
+        user_id = request.POST.get('user_id')
+        password1 = request.POST.get('password1')
+        password2 = request.POST.get('password2')
+        
+        if not user_id:
+            messages.error(request, 'Выберите пользователя')
+        elif password1 != password2:
+            messages.error(request, 'Пароли не совпадают')
+        elif len(password1) < 8:
+            messages.error(request, 'Пароль должен содержать минимум 8 символов')
+        else:
+            try:
+                user = User.objects.get(id=user_id)
+                user.set_password(password1)
+                user.save()
+                
+                messages.success(request, f'Пароль успешно изменен для пользователя: {user.first_name} {user.last_name}')
+            except User.DoesNotExist:
+                messages.error(request, 'Пользователь не найден')
+    
+    return render(request, 'admin_password_reset.html', {'users': users})
 
 @api_view(['POST'])
 def gmini_api(request):

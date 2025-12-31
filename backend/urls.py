@@ -35,7 +35,10 @@ urlpatterns = [
     path('login/', views.login_view, name='login'),
     path('register/', views.register_view, name='register'),
     path('logout/', views.logout_view, name='logout'),
-    path('admin/', admin.site.urls),
+    path('password-reset/', views.password_reset_view, name='password_reset'),
+    path('password-reset-confirm/<str:token>/', views.password_reset_confirm_view, name='password_reset_confirm'),
+    path('admin-password-reset/', views.admin_password_reset_view, name='admin_password_reset'),
+    path('hushyor-control-panel/', admin.site.urls),  # Изменен путь для безопасности
     path('api/gmini/', views.gmini_api, name='gmini-api'),
     path('api/', include(router.urls)),
 ]

@@ -1,5 +1,48 @@
 from django.contrib import admin
+from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
+from django.contrib.auth.models import User
+from django.urls import path
+from django.shortcuts import render, redirect
+from django.contrib import messages
 from .models import Subject, Topic, Task, UserProfile, Leaderboard, UserProgress, TaskAttempt
+
+# Расширяем стандартную админку пользователей
+class CustomUserAdmin(BaseUserAdmin):
+    actions = ['reset_password_action']
+    
+    def reset_password_action(self, request, queryset):
+        """Действие для сброса пароля выбранных пользователей"""
+        if 'apply' in request.POST:
+            new_password = request.POST.get('new_password')
+            confirm_password = request.POST.get('confirm_password')
+            
+            if new_password != confirm_password:
+                self.message_user(request, 'Пароли не совпадают', level=messages.ERROR)
+                return redirect(request.get_full_path())
+            
+            if len(new_password) < 8:
+                self.message_user(request, 'Пароль должен содержать минимум 8 символов', level=messages.ERROR)
+                return redirect(request.get_full_path())
+            
+            count = 0
+            for user in queryset:
+                user.set_password(new_password)
+                user.save()
+                count += 1
+            
+            self.message_user(request, f'Пароль успешно изменен для {count} пользователей', level=messages.SUCCESS)
+            return redirect(request.get_full_path())
+        
+        return render(request, 'admin/reset_password_confirmation.html', {
+            'users': queryset,
+            'action_checkbox_name': admin.helpers.ACTION_CHECKBOX_NAME,
+        })
+    
+    reset_password_action.short_description = 'Сбросить пароль выбранным пользователям'
+
+# Перерегистрируем User с новой админкой
+admin.site.unregister(User)
+admin.site.register(User, CustomUserAdmin)
 
 @admin.register(Subject)
 class SubjectAdmin(admin.ModelAdmin):

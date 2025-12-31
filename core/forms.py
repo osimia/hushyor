@@ -69,8 +69,12 @@ class CustomUserCreationForm(UserCreationForm):
         # Убираем все символы кроме цифр и +
         phone_cleaned = re.sub(r'[^\d+]', '', phone)
         
+        # Если номер не начинается с +, добавляем +992
+        if not phone_cleaned.startswith('+'):
+            phone_cleaned = '+992' + phone_cleaned
+        
         # Проверяем формат
-        if not re.match(r'^\+?\d{10,15}$', phone_cleaned):
+        if not re.match(r'^\+\d{10,15}$', phone_cleaned):
             raise ValidationError('Введите корректный номер телефона')
         
         # Проверяем уникальность
@@ -131,4 +135,10 @@ class CustomLoginForm(forms.Form):
     def clean_phone(self):
         """Очищаем номер телефона"""
         phone = self.cleaned_data.get('phone')
-        return re.sub(r'[^\d+]', '', phone)
+        phone_cleaned = re.sub(r'[^\d+]', '', phone)
+        
+        # Если номер не начинается с +, добавляем +992
+        if not phone_cleaned.startswith('+'):
+            phone_cleaned = '+992' + phone_cleaned
+        
+        return phone_cleaned
