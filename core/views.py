@@ -17,7 +17,9 @@ from django.views import View
 from django.shortcuts import render
 
 def main_view(request):
-    from .models import UserProgress
+    from .models import UserProgress, Task
+    from django.db.models import Count
+    
     subjects = Subject.objects.all()
     
     # Получаем прогресс для текущего пользователя
@@ -36,7 +38,17 @@ def main_view(request):
         subject.percentage = progress.progress_percentage if progress else 0
         subjects_with_progress.append(subject)
     
-    return render(request, 'main.html', {'subjects': subjects_with_progress})
+    # Статистика для главной страницы
+    stats = {
+        'total_users': User.objects.count(),
+        'total_tasks': Task.objects.count(),
+        'total_subjects': Subject.objects.count(),
+    }
+    
+    return render(request, 'main.html', {
+        'subjects': subjects_with_progress,
+        'stats': stats
+    })
 
 def subject_view(request, subject_id):
     from .models import Task, Topic, UserProgress, TaskAttempt
