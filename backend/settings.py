@@ -38,6 +38,8 @@ if os.getenv('RAILWAY_ENVIRONMENT'):
     ALLOWED_HOSTS.extend([
         '.railway.app',
         '.up.railway.app',
+        'hushyor.com',
+        'www.hushyor.com',
     ])
     # Add specific Railway domain if provided
     railway_domain = os.getenv('RAILWAY_PUBLIC_DOMAIN')
@@ -165,15 +167,21 @@ if os.getenv('RAILWAY_ENVIRONMENT') or os.getenv('DJANGO_ENV') == 'production':
     DEBUG = False
     
     # Security settings for production
-    SECURE_SSL_REDIRECT = True
+    # Railway handles HTTPS, so we don't need Django to redirect
+    SECURE_SSL_REDIRECT = False
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
     SECURE_BROWSER_XSS_FILTER = True
     SECURE_CONTENT_TYPE_NOSNIFF = True
     X_FRAME_OPTIONS = 'DENY'
     
-    # CSRF trusted origins for Railway
+    # Trust Railway proxy headers
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    
+    # CSRF trusted origins for Railway and custom domain
     CSRF_TRUSTED_ORIGINS = [
         'https://*.railway.app',
         'https://*.up.railway.app',
+        'https://hushyor.com',
+        'https://www.hushyor.com',
     ]
