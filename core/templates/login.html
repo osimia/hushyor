@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% block title %}ЕГЭ-Ментор - Вход{% endblock %}
+{% block content %}
+
+<section class="min-h-screen flex items-center justify-center py-12 px-4" style="background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);">
+    <div class="w-full max-w-md">
+        <div class="bg-white rounded-3xl shadow-2xl p-8">
+            <!-- Logo -->
+            <div class="flex justify-center mb-6">
+                <div class="w-20 h-20 rounded-3xl gradient-primary flex items-center justify-center shadow-soft">
+                    <span class="text-white font-bold text-3xl">E</span>
+                </div>
+            </div>
+
+            <!-- Title -->
+            <h1 class="font-heading font-bold text-3xl text-center text-foreground mb-2">Вход в аккаунт</h1>
+            <p class="text-center text-muted-foreground mb-8">Введите номер телефона и пароль для входа</p>
+
+            <!-- Form -->
+            <form method="post" class="space-y-5">
+                {% csrf_token %}
+                
+                {% if form.errors %}
+                <div class="bg-red-50 border-2 border-red-200 rounded-xl p-4">
+                    <p class="text-sm text-red-800">Неверное имя пользователя или пароль.</p>
+                </div>
+                {% endif %}
+
+                <!-- Phone Number -->
+                <div>
+                    <label for="username" class="block text-sm font-semibold text-foreground mb-2">Номер телефона</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                            <svg class="w-5 h-5 text-muted-foreground" fill="currentColor" viewBox="0 0 20 20"><path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"></path></svg>
+                        </div>
+                        <input type="text" id="username" name="username" class="w-full pl-12 pr-4 py-3 bg-muted border-2 border-transparent rounded-xl text-foreground placeholder-muted-foreground focus:border-primary focus:outline-none transition-colors" placeholder="+7 (999) 123-45-67" required>
+                    </div>
+                </div>
+
+                <!-- Password -->
+                <div>
+                    <label for="password" class="block text-sm font-semibold text-foreground mb-2">Пароль</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                            <svg class="w-5 h-5 text-muted-foreground" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"></path></svg>
+                        </div>
+                        <input type="password" id="password" name="password" class="w-full pl-12 pr-12 py-3 bg-muted border-2 border-transparent rounded-xl text-foreground placeholder-muted-foreground focus:border-primary focus:outline-none transition-colors" placeholder="••••••••" required>
+                        <button type="button" class="absolute inset-y-0 right-0 pr-4 flex items-center">
+                            <svg class="w-5 h-5 text-muted-foreground" fill="currentColor" viewBox="0 0 20 20"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z"></path><path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"></path></svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" class="w-full py-4 gradient-primary text-white rounded-xl font-semibold text-lg hover:opacity-90 transition-opacity shadow-soft">
+                    Войти
+                </button>
+            </form>
+
+            <!-- Register Link -->
+            <div class="mt-6 text-center">
+                <a href="/register/" class="text-primary hover:underline font-medium">Нет аккаунта? Зарегистрироваться</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

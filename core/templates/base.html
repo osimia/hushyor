@@ -1,0 +1,124 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Hushyor{% endblock %}</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="{% static 'favicon/favicon.ico' %}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'favicon/favicon-16x16.png' %}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'favicon/favicon-32x32.png' %}">
+    <link rel="icon" type="image/png" sizes="192x192" href="{% static 'favicon/favicon-192x192.png' %}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{% static 'favicon/apple-touch-icon.png' %}">
+    <link rel="manifest" href="{% static 'favicon/site.webmanifest' %}">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        heading: ['Nunito', 'system-ui', 'sans-serif'],
+                        body: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    colors: {
+                        background: 'hsl(210, 17%, 98%)',
+                        foreground: 'hsl(210, 11%, 15%)',
+                        card: 'hsl(0, 0%, 100%)',
+                        'card-foreground': 'hsl(210, 11%, 15%)',
+                        primary: 'hsl(229, 84%, 60%)',
+                        'primary-foreground': 'hsl(0, 0%, 100%)',
+                        secondary: 'hsl(261, 87%, 34%)',
+                        'secondary-foreground': 'hsl(0, 0%, 100%)',
+                        muted: 'hsl(210, 20%, 94%)',
+                        'muted-foreground': 'hsl(210, 11%, 40%)',
+                        accent: 'hsl(191, 85%, 62%)',
+                        destructive: 'hsl(333, 93%, 56%)',
+                        success: 'hsl(160, 84%, 39%)',
+                        border: 'hsl(214.3, 31.8%, 91.4%)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background-color: hsl(210, 17%, 98%);
+            color: hsl(210, 11%, 15%);
+        }
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Nunito', system-ui, sans-serif;
+        }
+        .gradient-primary {
+            background: linear-gradient(135deg, hsl(229, 84%, 60%) 0%, hsl(261, 87%, 50%) 100%);
+        }
+        .gradient-hero {
+            background: linear-gradient(135deg, hsl(229, 84%, 60%) 0%, hsl(261, 87%, 45%) 50%, hsl(333, 80%, 55%) 100%);
+        }
+        .shadow-soft {
+            box-shadow: 0 4px 20px -4px rgba(79, 109, 245, 0.15);
+        }
+        .shadow-card {
+            box-shadow: 0 8px 30px -8px rgba(26, 32, 44, 0.1);
+        }
+        .shadow-glow {
+            box-shadow: 0 0 40px rgba(79, 109, 245, 0.3);
+        }
+        .bg-gradient-primary {
+            background: linear-gradient(135deg, hsl(229, 84%, 60%) 0%, hsl(261, 87%, 50%) 100%);
+        }
+        .text-gradient {
+            background: linear-gradient(135deg, hsl(229, 84%, 60%) 0%, hsl(261, 87%, 50%) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        @keyframes fade-in {
+            0% { opacity: 0; transform: translateY(10px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes slide-up {
+            0% { opacity: 0; transform: translateY(20px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fade-in 0.5s ease-out forwards;
+        }
+        .animate-slide-up {
+            animation: slide-up 0.6s ease-out forwards;
+        }
+    </style>
+    {% block head %}{% endblock %}
+</head>
+<body class="min-h-screen">
+    <!-- Navbar -->
+    <nav class="sticky top-0 z-50 bg-card/80 backdrop-blur-lg border-b border-border/50">
+        <div class="container mx-auto px-6 md:px-8 lg:px-12">
+            <div class="flex items-center justify-between h-16">
+                <a href="/" class="flex items-center gap-3">
+                    <img src="{% static 'images/logo-square.png' %}" alt="Hushyor" class="w-10 h-10 object-contain">
+                    <span class="font-heading font-bold text-xl text-foreground hidden sm:block">Hushyor</span>
+                </a>
+                <div class="flex items-center gap-6">
+                    <a href="/" class="font-medium text-sm text-muted-foreground hover:text-foreground transition-colors">Главная</a>
+                    <a href="/leaderboard/" class="font-medium text-sm text-muted-foreground hover:text-foreground transition-colors">Рейтинг</a>
+                    {% if user.is_authenticated %}
+                    <a href="/profile/" class="font-medium text-sm text-muted-foreground hover:text-foreground transition-colors">Профиль</a>
+                    <a href="/logout/" class="font-medium text-sm text-muted-foreground hover:text-foreground transition-colors">Выйти</a>
+                    {% else %}
+                    <a href="/login/" class="px-4 py-2 bg-primary text-primary-foreground rounded-lg font-medium text-sm hover:opacity-90 transition-opacity">Войти</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    {% block content %}{% endblock %}
+</body>
+</html>
