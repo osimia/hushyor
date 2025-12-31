@@ -28,9 +28,26 @@ load_dotenv(BASE_DIR / '.env')
 SECRET_KEY = 'django-insecure-&u=+fqwjth+blv5z0p_5^@xyq63!a+#23!o*q(oky3lx_f$cvx'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv('DEBUG', 'True') == 'True'
 
+# ALLOWED_HOSTS configuration
 ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
+
+# Add Railway hosts if RAILWAY_ENVIRONMENT is set
+if os.getenv('RAILWAY_ENVIRONMENT'):
+    ALLOWED_HOSTS.extend([
+        '.railway.app',
+        '.up.railway.app',
+    ])
+    # Add specific Railway domain if provided
+    railway_domain = os.getenv('RAILWAY_PUBLIC_DOMAIN')
+    if railway_domain:
+        ALLOWED_HOSTS.append(railway_domain)
+
+# Allow custom hosts from environment variable
+custom_hosts = os.getenv('ALLOWED_HOSTS', '')
+if custom_hosts:
+    ALLOWED_HOSTS.extend([host.strip() for host in custom_hosts.split(',') if host.strip()])
 
 # Отключить HTTPS редирект для dev-сервера
 SECURE_SSL_REDIRECT = False
@@ -144,14 +161,19 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Production settings
-if os.getenv('DJANGO_ENV') == 'production':
+if os.getenv('RAILWAY_ENVIRONMENT') or os.getenv('DJANGO_ENV') == 'production':
     DEBUG = False
-    ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',')
     
-    # Security settings
+    # Security settings for production
     SECURE_SSL_REDIRECT = True
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
     SECURE_BROWSER_XSS_FILTER = True
     SECURE_CONTENT_TYPE_NOSNIFF = True
     X_FRAME_OPTIONS = 'DENY'
+    
+    # CSRF trusted origins for Railway
+    CSRF_TRUSTED_ORIGINS = [
+        'https://*.railway.app',
+        'https://*.up.railway.app',
+    ]
