@@ -36,7 +36,7 @@
                         <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                             <svg class="w-5 h-5 text-muted-foreground" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path></svg>
                         </div>
-                        <input type="text" id="full_name" name="full_name" class="w-full pl-12 pr-4 py-3 bg-muted border-2 border-transparent rounded-xl text-foreground placeholder-muted-foreground focus:border-primary focus:outline-none transition-colors" placeholder="Иванов Иван Иванович" required>
+                        <input type="text" id="full_name" name="full_name" value="{{ form.full_name.value|default_if_none:'' }}" class="w-full pl-12 pr-4 py-3 bg-muted border-2 border-transparent rounded-xl text-foreground placeholder-muted-foreground focus:border-primary focus:outline-none transition-colors" placeholder="Иванов Иван Иванович" required>
                     </div>
                 </div>
 
@@ -51,7 +51,7 @@
                             <span>🇹🇯</span>
                             <span>+992</span>
                         </div>
-                        <input type="tel" id="phone" name="phone" class="w-full pl-28 pr-4 py-3 bg-muted border-2 border-transparent rounded-xl text-foreground placeholder-muted-foreground focus:border-primary focus:outline-none transition-colors" placeholder="90 123 45 67">
+                        <input type="tel" id="phone" name="phone" value="{{ form.phone.value|default_if_none:'' }}" class="w-full pl-28 pr-4 py-3 bg-muted border-2 border-transparent rounded-xl text-foreground placeholder-muted-foreground focus:border-primary focus:outline-none transition-colors" placeholder="90 123 45 67" required>
                     </div>
                 </div>
 

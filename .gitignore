@@ -6,6 +6,7 @@ __pycache__/
 .Python
 backend_env/
 venv/
+my_env/
 env/
 ENV/
 *.egg-info/

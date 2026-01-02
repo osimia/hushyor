@@ -3,6 +3,7 @@ from .models import Subject
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib import messages
+from django.conf import settings
 
 from rest_framework import viewsets, status
 from rest_framework.decorators import api_view
@@ -351,12 +352,15 @@ def password_reset_view(request):
             # Сохраняем токен в кэше на 1 час
             cache.set(f'password_reset_{reset_token}', user_profile.user.id, 3600)
             
-            # В реальном приложении здесь отправляется SMS или email
-            # Пока просто показываем ссылку пользователю
-            messages.success(request, f'Ссылка для сброса пароля: /password-reset-confirm/{reset_token}/')
-        else:
-            messages.error(request, 'Пользователь с таким номером телефона не найден')
-    
+            # В реальном приложении здесь отправляется SMS или email.
+            # В DEBUG можно показать ссылку для удобства разработки.
+            if settings.DEBUG:
+                messages.success(request, f'Ссылка для сброса пароля: /password-reset-confirm/{reset_token}/')
+        
+        # Не раскрываем, существует ли пользователь (защита от перебора номеров)
+        if not settings.DEBUG:
+            messages.success(request, 'Если номер зарегистрирован, вы получите инструкции по сбросу пароля.')
+
     return render(request, 'password_reset.html')
 
 def password_reset_confirm_view(request, token):
