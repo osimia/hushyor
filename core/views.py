@@ -18,25 +18,30 @@ from django.views import View
 from django.shortcuts import render
 
 def main_view(request):
-    from .models import UserProgress, Task
+    from .models import Task, TaskAttempt
     from django.db.models import Count
     
-    subjects = Subject.objects.all()
-    
-    # Получаем прогресс для текущего пользователя
-    user_progress = {}
+    subjects = Subject.objects.annotate(total_tasks=Count('tasks', distinct=True))
+
+    solved_by_subject = {}
     if request.user.is_authenticated:
-        progress_data = UserProgress.objects.filter(user=request.user).select_related('subject')
-        user_progress = {p.subject.id: p for p in progress_data}
-    
+        solved_rows = (
+            TaskAttempt.objects.filter(user=request.user, is_solved=True)
+            .values('task__subject')
+            .annotate(cnt=Count('id'))
+        )
+        solved_by_subject = {row['task__subject']: row['cnt'] for row in solved_rows}
+
     # Добавляем информацию о прогрессе к каждому предмету
     subjects_with_progress = []
     for subject in subjects:
-        progress = user_progress.get(subject.id)
-        subject.user_progress = progress
-        subject.completed = progress.completed_tasks if progress else 0
-        subject.total = progress.total_tasks if progress else subject.tasks.count()
-        subject.percentage = progress.progress_percentage if progress else 0
+        total = subject.total_tasks or 0
+        completed = solved_by_subject.get(subject.id, 0) if request.user.is_authenticated else 0
+        percentage = int((completed / total) * 100) if total > 0 else 0
+
+        subject.completed = completed
+        subject.total = total
+        subject.percentage = percentage
         subjects_with_progress.append(subject)
     
     # Статистика для главной страницы
@@ -90,12 +95,23 @@ def subject_view(request, subject_id):
     return render(request, 'subject.html', context)
 
 def topic_view(request, topic_id):
-    from .models import Task, Topic
+    from .models import Task, Topic, TaskAttempt
     topic = Topic.objects.get(id=topic_id)
     tasks = Task.objects.filter(topic=topic).order_by('order')
     
     # Redirect to first task if tasks exist
     if tasks.exists():
+        if request.user.is_authenticated:
+            solved_task_ids = set(
+                TaskAttempt.objects.filter(
+                    user=request.user,
+                    task_id__in=tasks.values_list('id', flat=True),
+                    is_solved=True,
+                ).values_list('task_id', flat=True)
+            )
+            unsolved_tasks = tasks.exclude(id__in=solved_task_ids)
+            if unsolved_tasks.exists():
+                return redirect(f'/task/{unsolved_tasks.first().id}/')
         first_task = tasks.first()
         return redirect(f'/task/{first_task.id}/')
     else:
@@ -184,14 +200,37 @@ def task_view(request, task_id):
     # Получаем все задачи этой темы для навигации
     if task.topic:
         topic_tasks = Task.objects.filter(topic=task.topic).order_by('order')
-        total_tasks = topic_tasks.count()
-        
+
+        if request.user.is_authenticated:
+            solved_task_ids = set(
+                TaskAttempt.objects.filter(
+                    user=request.user,
+                    task_id__in=topic_tasks.values_list('id', flat=True),
+                    is_solved=True,
+                ).values_list('task_id', flat=True)
+            )
+            all_solved = len(solved_task_ids) >= topic_tasks.count()
+
+            if not all_solved:
+                # Пока не решены все задачи — показываем только нерешённые
+                if task.id in solved_task_ids:
+                    first_unsolved = topic_tasks.exclude(id__in=solved_task_ids).first()
+                    if first_unsolved:
+                        return redirect(f'/task/{first_unsolved.id}/')
+
+                task_list = [t for t in topic_tasks if t.id not in solved_task_ids]
+            else:
+                task_list = list(topic_tasks)
+        else:
+            task_list = list(topic_tasks)
+
+        total_tasks = len(task_list)
+
         # Находим текущую позицию
-        task_list = list(topic_tasks)
         try:
             current_index = task_list.index(task)
             current_number = current_index + 1
-            
+
             # Предыдущая и следующая задачи
             prev_task = task_list[current_index - 1] if current_index > 0 else None
             next_task = task_list[current_index + 1] if current_index < len(task_list) - 1 else None
