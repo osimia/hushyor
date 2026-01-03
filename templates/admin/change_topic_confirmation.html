@@ -1,0 +1,91 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls static %}
+
+{% block extrahead %}
+    {{ block.super }}
+    {{ media }}
+{% endblock %}
+
+{% block bodyclass %}{{ block.super }} app-{{ opts.app_label }} model-{{ opts.model_name }} change-form{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+    <a href="{% url 'admin:index' %}">Главная</a>
+    &rsaquo; <a href="{% url 'admin:core_task_changelist' %}">Задачи</a>
+    &rsaquo; Изменить тему
+</div>
+{% endblock %}
+
+{% block content %}
+<h1>Изменить тему для выбранных задач</h1>
+
+<form method="post">
+    {% csrf_token %}
+    
+    <p>Вы собираетесь изменить тему для следующих задач:</p>
+    
+    <div style="max-height: 400px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; margin: 20px 0; background: #f9f9f9;">
+        <ul>
+        {% for task in tasks %}
+            <li>
+                <strong>ID {{ task.id }}</strong>: {{ task.question|truncatewords:15 }}
+                <br>
+                <small style="color: #666;">
+                    Предмет: <strong>{{ task.subject.title }}</strong>
+                    {% if task.topic %} | Текущая тема: <strong>{{ task.topic.title }}</strong>{% endif %}
+                </small>
+            </li>
+        {% endfor %}
+        </ul>
+    </div>
+    
+    <p><strong>Всего задач: {{ tasks|length }}</strong></p>
+    
+    <div class="form-row">
+        <label for="topic_id">Выберите новую тему:</label>
+        <select name="topic_id" id="topic_id" required style="width: 400px; padding: 5px; margin-left: 10px;">
+            <option value="">---------</option>
+            {% regroup topics by subject as subject_list %}
+            {% for subject_group in subject_list %}
+                <optgroup label="{{ subject_group.grouper.icon }} {{ subject_group.grouper.title }}">
+                    {% for topic in subject_group.list %}
+                        <option value="{{ topic.id }}">{{ topic.title }}</option>
+                    {% endfor %}
+                </optgroup>
+            {% endfor %}
+        </select>
+    </div>
+    
+    <div style="margin-top: 20px;">
+        {% for obj in tasks %}
+            <input type="hidden" name="{{ action_checkbox_name }}" value="{{ obj.pk }}" />
+        {% endfor %}
+        <input type="hidden" name="action" value="change_topic_action" />
+        
+        <input type="submit" name="apply" value="Применить" class="default" style="padding: 10px 20px; margin-right: 10px;" />
+        <a href="{% url 'admin:core_task_changelist' %}" class="button cancel-link" style="padding: 10px 20px;">Отмена</a>
+    </div>
+</form>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('form');
+    form.addEventListener('submit', function(e) {
+        const select = document.getElementById('topic_id');
+        if (!select.value) {
+            e.preventDefault();
+            alert('Пожалуйста, выберите тему');
+            return false;
+        }
+        
+        const taskCount = {{ tasks|length }};
+        const topicText = select.options[select.selectedIndex].text;
+        
+        if (!confirm(`Вы уверены, что хотите изменить тему на "${topicText}" для ${taskCount} задач?`)) {
+            e.preventDefault();
+            return false;
+        }
+    });
+});
+</script>
+{% endblock %}

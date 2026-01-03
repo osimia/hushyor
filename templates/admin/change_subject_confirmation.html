@@ -1,0 +1,86 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls static %}
+
+{% block extrahead %}
+    {{ block.super }}
+    {{ media }}
+{% endblock %}
+
+{% block bodyclass %}{{ block.super }} app-{{ opts.app_label }} model-{{ opts.model_name }} change-form{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+    <a href="{% url 'admin:index' %}">Главная</a>
+    &rsaquo; <a href="{% url 'admin:core_task_changelist' %}">Задачи</a>
+    &rsaquo; Изменить предмет
+</div>
+{% endblock %}
+
+{% block content %}
+<h1>Изменить предмет для выбранных задач</h1>
+
+<form method="post">
+    {% csrf_token %}
+    
+    <p>Вы собираетесь изменить предмет для следующих задач:</p>
+    
+    <div style="max-height: 400px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; margin: 20px 0; background: #f9f9f9;">
+        <ul>
+        {% for task in tasks %}
+            <li>
+                <strong>ID {{ task.id }}</strong>: {{ task.question|truncatewords:15 }}
+                <br>
+                <small style="color: #666;">
+                    Текущий предмет: <strong>{{ task.subject.title }}</strong>
+                    {% if task.topic %} | Тема: {{ task.topic.title }}{% endif %}
+                </small>
+            </li>
+        {% endfor %}
+        </ul>
+    </div>
+    
+    <p><strong>Всего задач: {{ tasks|length }}</strong></p>
+    
+    <div class="form-row">
+        <label for="subject_id">Выберите новый предмет:</label>
+        <select name="subject_id" id="subject_id" required style="width: 300px; padding: 5px; margin-left: 10px;">
+            <option value="">---------</option>
+            {% for subject in subjects %}
+                <option value="{{ subject.id }}">{{ subject.icon }} {{ subject.title }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    
+    <div style="margin-top: 20px;">
+        {% for obj in tasks %}
+            <input type="hidden" name="{{ action_checkbox_name }}" value="{{ obj.pk }}" />
+        {% endfor %}
+        <input type="hidden" name="action" value="change_subject_action" />
+        
+        <input type="submit" name="apply" value="Применить" class="default" style="padding: 10px 20px; margin-right: 10px;" />
+        <a href="{% url 'admin:core_task_changelist' %}" class="button cancel-link" style="padding: 10px 20px;">Отмена</a>
+    </div>
+</form>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('form');
+    form.addEventListener('submit', function(e) {
+        const select = document.getElementById('subject_id');
+        if (!select.value) {
+            e.preventDefault();
+            alert('Пожалуйста, выберите предмет');
+            return false;
+        }
+        
+        const taskCount = {{ tasks|length }};
+        const subjectText = select.options[select.selectedIndex].text;
+        
+        if (!confirm(`Вы уверены, что хотите изменить предмет на "${subjectText}" для ${taskCount} задач?`)) {
+            e.preventDefault();
+            return false;
+        }
+    });
+});
+</script>
+{% endblock %}

@@ -1,58 +1,125 @@
-# PrepMate - Платформа для подготовки к ЕГЭ
+# hushyor - Платформа для подготовки к ММТ
 
 ## Описание проекта
-PrepMate - это веб-приложение на Django для подготовки к экзаменам. Проект включает:
-- Предметы и задания
+hushyor - это веб-приложение на Django для подготовки к ММТ (Межвузовское Мониторинговое Тестирование) в Таджикистане. Проект включает:
+- Предметы и задания (Забони тоҷикӣ, География, Математика)
 - AI-ассистент для помощи
 - Профиль пользователя с отслеживанием прогресса
 - Лидерборд
 - Система авторизации
+- REST API для мобильного приложения
 
 ## Технологии
-- Python 3.x
-- Django 5.2.9
+- Python 3.12
+- Django 6.0
 - Django REST Framework 3.16.1
-- SQLite3
-- Bootstrap 5.3.2 (через CDN)
+- PostgreSQL (продакшн) / SQLite3 (разработка)
+- JWT Authentication
+- CORS Headers
+- TailwindCSS
 
-## Установка и запуск
+## Быстрый старт
 
-1. Создайте виртуальное окружение:
+### 1. Клонирование репозитория
 ```bash
-python -m venv backend_env
+cd ~/Рабочий\ стол/projects/
+git clone <repository-url> hushyor
+cd hushyor
 ```
 
-2. Активируйте виртуальное окружение:
-- Windows: `backend_env\Scripts\activate`
-- Linux/Mac: `source backend_env/bin/activate`
+### 2. Создание и активация виртуального окружения
 
-3. Установите зависимости:
+**Создание виртуального окружения:**
 ```bash
-pip install django djangorestframework
+python3 -m venv my_env
 ```
 
-4. Примените миграции:
+**Активация виртуального окружения:**
+
+Linux/Mac:
+```bash
+source my_env/bin/activate
+```
+
+Windows:
+```bash
+my_env\Scripts\activate
+```
+
+После активации вы увидите `(my_env)` в начале строки терминала.
+
+### 3. Установка зависимостей
+```bash
+pip install -r requirements.txt
+```
+
+### 4. Настройка переменных окружения
+Создайте файл `.env` в корне проекта:
+```bash
+SECRET_KEY=your-secret-key-here
+DEBUG=True
+DATABASE_URL=sqlite:///db.sqlite3
+```
+
+### 5. Применение миграций
+```bash
+python manage.py migrate
+```
+
+### 6. Создание суперпользователя
+```bash
+python manage.py createsuperuser
+```
+
+### 7. Импорт данных (опционально)
+Если у вас есть fixture файлы с данными:
+```bash
+# Импорт данных таджикского языка
+python3 import_tjk_data.py
+
+# Импорт данных географии
+python3 import_geography_data.py
+
+# Или восстановить все данные сразу
+python3 restore_all_data.py
+```
+
+### 8. Запуск сервера разработки
+```bash
+python manage.py runserver 127.0.0.1:8000
+```
+
+### 9. Открытие в браузере
+- **Главная страница:** http://127.0.0.1:8000/
+- **Админ-панель:** http://127.0.0.1:8000/hushyor-control-panel/
+
+## Полезные команды
+
+### Остановка сервера
+Нажмите `Ctrl+C` в терминале
+
+### Деактивация виртуального окружения
+```bash
+deactivate
+```
+
+### Повторный запуск после перезагрузки
+```bash
+cd ~/Рабочий\ стол/projects/hushyor
+source my_env/bin/activate
+python manage.py runserver 127.0.0.1:8000
+```
+
+### Создание миграций после изменения моделей
 ```bash
 python manage.py makemigrations
 python manage.py migrate
 ```
 
-5. Создайте суперпользователя для админки:
+### Сбор статических файлов (для продакшна)
 ```bash
-python manage.py createsuperuser
+python manage.py collectstatic
 ```
-
-6. Создайте тестовые данные:
-```bash
-python manage.py create_test_data
-```
-
-7. Запустите сервер:
-```bash
-python manage.py runserver
-```
-
-8. Откройте в браузере: http://127.0.0.1:8000/
 
 ## Тестовый пользователь
 - Логин: `testuser`

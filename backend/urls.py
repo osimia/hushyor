@@ -26,6 +26,7 @@ router.register(r'leaderboard', views.LeaderboardViewSet)
 router.register(r'profiles', views.UserProfileViewSet)
 
 urlpatterns = [
+    # ==================== HTML Views (существующий сайт) ====================
     path('', views.main_view, name='main'),
     path('subject/<int:subject_id>/', views.subject_view, name='subject'),
     path('topic/<int:topic_id>/', views.topic_view, name='topic'),
@@ -38,7 +39,12 @@ urlpatterns = [
     path('password-reset/', views.password_reset_view, name='password_reset'),
     path('password-reset-confirm/<str:token>/', views.password_reset_confirm_view, name='password_reset_confirm'),
     path('admin-password-reset/', views.admin_password_reset_view, name='admin_password_reset'),
-    path('hushyor-control-panel/', admin.site.urls),  # Изменен путь для безопасности
+    path('hushyor-control-panel/', admin.site.urls),
+    
+    # ==================== API для мобильного приложения ====================
+    path('api/v1/', include('core.urls_api')),  # Новый API для Flutter
+    
+    # ==================== Старый API (совместимость) ====================
     path('api/gmini/', views.gmini_api, name='gmini-api'),
     path('api/', include(router.urls)),
 ]
