@@ -4,7 +4,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}hushyor{% endblock %}</title>
+    <title>{% block title %}hushyor - Подготовка к ММТ онлайн | Таджикистан{% endblock %}</title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="{% block description %}Онлайн платформа для подготовки к ММТ в Таджикистане. Забони тоҷикӣ, География, Математика. Доступ 24/7, ИИ-помощник, 1496+ задач.{% endblock %}">
+    <meta name="keywords" content="{% block keywords %}ММТ, подготовка к ММТ, ММТ Таджикистан, онлайн обучение, забони тоҷикӣ, география, математика, тесты ММТ, hushyor{% endblock %}">
+    <meta name="author" content="hushyor">
+    <meta name="robots" content="index, follow">
+    <meta name="language" content="Russian">
+    <link rel="canonical" href="{% block canonical %}https://hushyor.com{{ request.path }}{% endblock %}">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://hushyor.com{{ request.path }}">
+    <meta property="og:title" content="{% block og_title %}hushyor - Подготовка к ММТ онлайн{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}Персонализированная подготовка к ММТ с ИИ-помощником. Более 1496 задач по всем предметам.{% endblock %}">
+    <meta property="og:image" content="{% block og_image %}https://hushyor.com{% static 'images/og-image.png' %}{% endblock %}">
+    <meta property="og:site_name" content="hushyor">
+    <meta property="og:locale" content="ru_RU">
+    
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="https://hushyor.com{{ request.path }}">
+    <meta name="twitter:title" content="{% block twitter_title %}hushyor - Подготовка к ММТ онлайн{% endblock %}">
+    <meta name="twitter:description" content="{% block twitter_description %}Персонализированная подготовка к ММТ с ИИ-помощником{% endblock %}">
+    <meta name="twitter:image" content="{% block twitter_image %}https://hushyor.com{% static 'images/og-image.png' %}{% endblock %}">
+    
+    <!-- Additional SEO -->
+    <meta name="theme-color" content="#4F6DF5">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="{% static 'favicon/favicon.ico' %}">
@@ -13,6 +42,29 @@
     <link rel="icon" type="image/png" sizes="192x192" href="{% static 'favicon/favicon-192x192.png' %}">
     <link rel="apple-touch-icon" sizes="180x180" href="{% static 'favicon/apple-touch-icon.png' %}">
     <link rel="manifest" href="{% static 'favicon/site.webmanifest' %}">
+    
+    <!-- Structured Data / JSON-LD -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "EducationalOrganization",
+      "name": "hushyor",
+      "description": "Онлайн платформа для подготовки к ММТ в Таджикистане",
+      "url": "https://hushyor.com",
+      "logo": "https://hushyor.com{% static 'images/logo-square.png' %}",
+      "sameAs": [
+        "https://instagram.com/osimi.khan",
+        "https://www.linkedin.com/in/akramkhon-osimi-12081423b/",
+        "https://t.me/KhanOsimi"
+      ],
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "email": "osimi@hushyor.com",
+        "contactType": "Customer Service"
+      }
+    }
+    </script>
+    {% block structured_data %}{% endblock %}
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">

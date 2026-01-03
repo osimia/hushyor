@@ -26,6 +26,11 @@ router.register(r'leaderboard', views.LeaderboardViewSet)
 router.register(r'profiles', views.UserProfileViewSet)
 
 urlpatterns = [
+    # ==================== SEO ====================
+    path('sitemap.xml', views.sitemap_view, name='sitemap'),
+    path('robots.txt', views.robots_txt_view, name='robots'),
+    path('yandex_f58006ecd2f5e538.html', views.yandex_verification_view, name='yandex_verification'),
+    
     # ==================== HTML Views (существующий сайт) ====================
     path('', views.main_view, name='main'),
     path('subject/<int:subject_id>/', views.subject_view, name='subject'),

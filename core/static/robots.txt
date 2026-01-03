@@ -1,0 +1,15 @@
+User-agent: *
+Allow: /
+Allow: /subject/
+Allow: /leaderboard/
+Disallow: /admin/
+Disallow: /hushyor-control-panel/
+Disallow: /api/
+Disallow: /profile/
+Disallow: /logout/
+
+# Sitemap
+Sitemap: https://hushyor.com/sitemap.xml
+
+# Crawl-delay
+Crawl-delay: 1

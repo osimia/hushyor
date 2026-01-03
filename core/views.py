@@ -196,6 +196,28 @@ def task_view(request, task_id):
                             pass
                     
                     attempt_info.save()
+            
+            # Если это AJAX запрос, возвращаем JSON
+            if is_ajax:
+                # Находим следующую задачу
+                next_task_id = None
+                if task.topic:
+                    topic_tasks = Task.objects.filter(topic=task.topic).order_by('order')
+                    task_list = list(topic_tasks)
+                    try:
+                        current_index = task_list.index(task)
+                        if current_index < len(task_list) - 1:
+                            next_task_id = task_list[current_index + 1].id
+                    except ValueError:
+                        pass
+                
+                return JsonResponse({
+                    'is_correct': is_correct,
+                    'points_earned': points_earned,
+                    'correct_answer': task.correct_answer,
+                    'attempts': attempt_info.attempts if attempt_info else 1,
+                    'next_task_id': next_task_id
+                })
     
     # Получаем все задачи этой темы для навигации
     if task.topic:
@@ -213,12 +235,11 @@ def task_view(request, task_id):
 
             if not all_solved:
                 # Пока не решены все задачи — показываем только нерешённые
-                if task.id in solved_task_ids:
-                    first_unsolved = topic_tasks.exclude(id__in=solved_task_ids).first()
-                    if first_unsolved:
-                        return redirect(f'/task/{first_unsolved.id}/')
-
+                # Убираем автоматический редирект, чтобы показать модальное окно успеха
                 task_list = [t for t in topic_tasks if t.id not in solved_task_ids]
+                # Если текущая задача решена, добавляем её в список для показа
+                if task.id in solved_task_ids and task not in task_list:
+                    task_list.insert(0, task)
             else:
                 task_list = list(topic_tasks)
         else:
@@ -244,6 +265,8 @@ def task_view(request, task_id):
         prev_task = None
         next_task = None
     
+    import json
+    
     context = {
         'task': task,
         'result': result,
@@ -254,6 +277,7 @@ def task_view(request, task_id):
         'next_task': next_task,
         'points_earned': points_earned,
         'attempt_info': attempt_info,
+        'task_options_json': json.dumps(task.options) if task.options else '{}',
     }
     return render(request, 'task.html', context)
 
@@ -499,3 +523,86 @@ class UserProfileViewSet(viewsets.ModelViewSet):
 class LeaderboardViewSet(viewsets.ModelViewSet):
     queryset = Leaderboard.objects.all()
     serializer_class = LeaderboardSerializer
+
+
+def sitemap_view(request):
+    """Генерация XML sitemap для поисковых систем"""
+    from django.http import HttpResponse
+    from django.urls import reverse
+    from datetime import datetime
+    
+    subjects = Subject.objects.all()
+    
+    sitemap_xml = '''<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    <url>
+        <loc>https://hushyor.com/</loc>
+        <lastmod>{}</lastmod>
+        <changefreq>daily</changefreq>
+        <priority>1.0</priority>
+    </url>
+    <url>
+        <loc>https://hushyor.com/leaderboard/</loc>
+        <lastmod>{}</lastmod>
+        <changefreq>daily</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://hushyor.com/login/</loc>
+        <lastmod>{}</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.6</priority>
+    </url>
+    <url>
+        <loc>https://hushyor.com/register/</loc>
+        <lastmod>{}</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.6</priority>
+    </url>'''.format(
+        datetime.now().strftime('%Y-%m-%d'),
+        datetime.now().strftime('%Y-%m-%d'),
+        datetime.now().strftime('%Y-%m-%d'),
+        datetime.now().strftime('%Y-%m-%d')
+    )
+    
+    # Добавляем страницы предметов
+    for subject in subjects:
+        sitemap_xml += '''
+    <url>
+        <loc>https://hushyor.com/subject/{}/</loc>
+        <lastmod>{}</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.9</priority>
+    </url>'''.format(subject.id, datetime.now().strftime('%Y-%m-%d'))
+    
+    sitemap_xml += '\n</urlset>'
+    
+    return HttpResponse(sitemap_xml, content_type='application/xml')
+
+
+def robots_txt_view(request):
+    """Генерация robots.txt"""
+    from django.http import HttpResponse
+    
+    robots_txt = """User-agent: *
+Allow: /
+Allow: /subject/
+Allow: /leaderboard/
+Disallow: /admin/
+Disallow: /hushyor-control-panel/
+Disallow: /api/
+Disallow: /profile/
+Disallow: /logout/
+
+Sitemap: https://hushyor.com/sitemap.xml
+
+Crawl-delay: 1
+"""
+    
+    return HttpResponse(robots_txt, content_type='text/plain')
+
+
+def yandex_verification_view(request):
+    """Верификация для Yandex Webmaster"""
+    from django.shortcuts import render
+    return render(request, 'yandex_f58006ecd2f5e538.html')
