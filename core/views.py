@@ -102,6 +102,18 @@ def topic_view(request, topic_id):
     # Redirect to first task if tasks exist
     if tasks.exists():
         if request.user.is_authenticated:
+            # 1) Продолжаем с последней открытой задачи в этой теме
+            last_attempt = (
+                TaskAttempt.objects
+                .filter(user=request.user, task_id__in=tasks.values_list('id', flat=True))
+                .select_related('task')
+                .order_by('-updated_at')
+                .first()
+            )
+            if last_attempt and not last_attempt.is_solved:
+                return redirect(f'/task/{last_attempt.task.id}/')
+
+            # 2) Если последняя открытая задача решена — переходим на первую нерешённую
             solved_task_ids = set(
                 TaskAttempt.objects.filter(
                     user=request.user,
@@ -219,35 +231,15 @@ def task_view(request, task_id):
                     'next_task_id': next_task_id
                 })
     
-    # Получаем все задачи этой темы для навигации
+    # Получаем все задачи этой темы для навигации и правильного счетчика X из N
+    # Важно: счетчик и навигация должны считаться по полному списку задач темы,
+    # а продолжение "с места" обеспечивается topic_view (редирект на первую нерешённую).
     if task.topic:
         topic_tasks = Task.objects.filter(topic=task.topic).order_by('order')
-
-        if request.user.is_authenticated:
-            solved_task_ids = set(
-                TaskAttempt.objects.filter(
-                    user=request.user,
-                    task_id__in=topic_tasks.values_list('id', flat=True),
-                    is_solved=True,
-                ).values_list('task_id', flat=True)
-            )
-            all_solved = len(solved_task_ids) >= topic_tasks.count()
-
-            if not all_solved:
-                # Пока не решены все задачи — показываем только нерешённые
-                # Убираем автоматический редирект, чтобы показать модальное окно успеха
-                task_list = [t for t in topic_tasks if t.id not in solved_task_ids]
-                # Если текущая задача решена, добавляем её в список для показа
-                if task.id in solved_task_ids and task not in task_list:
-                    task_list.insert(0, task)
-            else:
-                task_list = list(topic_tasks)
-        else:
-            task_list = list(topic_tasks)
-
+        task_list = list(topic_tasks)
         total_tasks = len(task_list)
 
-        # Находим текущую позицию
+        # Находим текущую позицию в ПОЛНОМ списке
         try:
             current_index = task_list.index(task)
             current_number = current_index + 1

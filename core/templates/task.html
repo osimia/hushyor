@@ -31,7 +31,6 @@
                 <!-- Question Card -->
                 <div class="bg-card rounded-2xl p-8 shadow-card border border-border/50">
                     <div class="flex items-center justify-between mb-6">
-                        <h2 class="font-heading font-bold text-xl text-foreground">Задание №{{ task.order|default:1 }}</h2>
                         <div class="flex items-center gap-1">
                             <span class="text-xs text-muted-foreground mr-2">Сложность:</span>
                             {% for i in "12345" %}
@@ -88,32 +87,32 @@
                 </div>
 
                 <!-- Navigation -->
-                <div class="flex items-center justify-between">
+                <div class="flex items-center justify-between gap-2">
                     {% if prev_task %}
-                    <a href="/task/{{ prev_task.id }}/" class="flex items-center gap-2 px-4 py-2 text-muted-foreground hover:text-foreground transition-colors">
+                    <a href="/task/{{ prev_task.id }}/" class="flex items-center gap-2 px-2 sm:px-4 py-2 text-muted-foreground hover:text-foreground transition-colors whitespace-nowrap">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
-                        Предыдущее
+                        <span class="text-sm sm:text-base">Предыдущее</span>
                     </a>
                     {% else %}
-                    <div class="flex items-center gap-2 px-4 py-2 text-muted-foreground opacity-50 cursor-not-allowed">
+                    <div class="flex items-center gap-2 px-2 sm:px-4 py-2 text-muted-foreground opacity-50 cursor-not-allowed whitespace-nowrap">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
-                        Предыдущее
+                        <span class="text-sm sm:text-base">Предыдущее</span>
                     </div>
                     {% endif %}
                     
-                    <div class="flex items-center gap-2">
-                        <div class="w-32 h-2 bg-muted rounded-full overflow-hidden">
+                    <div class="flex items-center gap-2 flex-1 min-w-0 justify-center">
+                        <div class="w-24 sm:w-32 h-2 bg-muted rounded-full overflow-hidden">
                             <div class="h-full bg-gradient-primary" style="width: {% widthratio current_number total_tasks 100 %}%;"></div>
                         </div>
                     </div>
                     
                     {% if next_task %}
-                    <a href="/task/{{ next_task.id }}/" class="flex items-center gap-2 px-4 py-2 text-primary hover:text-primary/80 transition-colors font-semibold">
-                        Следующее
+                    <a href="/task/{{ next_task.id }}/" class="flex items-center gap-2 px-2 sm:px-4 py-2 text-primary hover:text-primary/80 transition-colors font-semibold whitespace-nowrap">
+                        <span class="text-sm sm:text-base">Следующее</span>
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
                     </a>
                     {% else %}
-                    <a href="/subject/{{ task.subject.id }}/" class="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-xl font-semibold hover:opacity-90 transition-opacity">
+                    <a href="/subject/{{ task.subject.id }}/" class="flex items-center gap-2 px-3 sm:px-4 py-2 bg-primary text-primary-foreground rounded-xl font-semibold hover:opacity-90 transition-opacity whitespace-nowrap">
                         Завершить
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                     </a>
@@ -157,18 +156,14 @@
 
                     <!-- Action Buttons -->
                     <div class="px-4 py-3 bg-card border-t border-border/50">
-                        <div class="flex items-center justify-between mb-3">
-                            <button onclick="requestAI('theory')" class="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors">
-                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z"></path></svg>
+                        <div class="flex items-center justify-between">
+                            <button type="button" class="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors" onclick="requestTheory()">
+                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804V16.5A1.5 1.5 0 003.5 18c1.798 0 3.5-.5 5-1.354A7.968 7.968 0 0012 18a7.968 7.968 0 003.5-.804c1.057.514 2.245.804 3.5.804a1.5 1.5 0 001.5-1.5V4.804A7.968 7.968 0 0015.5 4c-1.255 0-2.443.29-3.5.804A7.968 7.968 0 009 4.804z"></path></svg>
                                 Теория
                             </button>
-                            <button onclick="requestAI('hint')" class="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors">
-                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
-                                Подсказка
-                            </button>
-                            <button class="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors" disabled>
+                            <button type="button" class="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors" onclick="requestHint()">
                                 <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"></path></svg>
-                                Статистика
+                                Подсказка
                             </button>
                         </div>
 

@@ -36,8 +36,9 @@ if _env_debug is None:
 else:
     DEBUG = _env_debug.strip().lower() in ('1', 'true', 'yes', 'y', 'on')
 
-# Принудительно включаем DEBUG для локальной разработки
-DEBUG = True
+# Never enable debug in production
+if _is_production:
+    DEBUG = False
 
 # ALLOWED_HOSTS configuration
 ALLOWED_HOSTS = ['127.0.0.1', 'localhost']

@@ -3,75 +3,69 @@
 {% block content %}
 
 <!-- Leaderboard Section -->
-<section class="py-8 md:py-12">
+<section class="py-6 md:py-12">
     <div class="container mx-auto px-4 max-w-6xl">
         <!-- Header -->
-        <div class="mb-8">
-            <div class="flex items-center gap-3 mb-3">
-                <div class="w-12 h-12 rounded-xl bg-yellow-400 flex items-center justify-center">
-                    <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+        <div class="mb-6 md:mb-8">
+            <div class="flex items-center gap-2 md:gap-3 mb-2 md:mb-3">
+                <div class="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-yellow-400 flex items-center justify-center flex-shrink-0">
+                    <svg class="w-5 h-5 md:w-6 md:h-6 text-white" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
                 </div>
-                <h1 class="font-heading font-bold text-3xl md:text-4xl text-foreground">Рейтинг учеников</h1>
+                <h1 class="font-heading font-bold text-2xl md:text-4xl text-foreground">Рейтинг учеников</h1>
             </div>
-            <p class="text-muted-foreground text-lg">Соревнуйтесь с другими учениками и улучшайте свои результаты</p>
+            <p class="text-muted-foreground text-sm md:text-lg">Соревнуйтесь с другими учениками и улучшайте свои результаты</p>
         </div>
 
         <!-- Filters -->
-        <div class="flex flex-wrap gap-4 mb-8">
-            <div class="relative">
-                <select class="appearance-none bg-card border border-border rounded-lg px-4 py-2 pr-10 text-sm font-medium text-foreground cursor-pointer hover:border-primary transition-colors">
+        <div class="flex flex-wrap gap-3 md:gap-4 mb-6 md:mb-8">
+            <div class="relative flex-1 min-w-[140px]">
+                <select class="w-full appearance-none bg-card border border-border rounded-lg px-3 md:px-4 py-2 pr-9 md:pr-10 text-xs md:text-sm font-medium text-foreground cursor-pointer hover:border-primary transition-colors">
                     <option>Все предметы</option>
                     <option>Математика</option>
                     <option>Русский язык</option>
                     <option>Физика</option>
                 </select>
-                <svg class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                <svg class="absolute right-2 md:right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
             </div>
-            <div class="relative">
-                <select class="appearance-none bg-card border border-border rounded-lg px-4 py-2 pr-10 text-sm font-medium text-foreground cursor-pointer hover:border-primary transition-colors">
+            <div class="relative flex-1 min-w-[140px]">
+                <select class="w-full appearance-none bg-card border border-border rounded-lg px-3 md:px-4 py-2 pr-9 md:pr-10 text-xs md:text-sm font-medium text-foreground cursor-pointer hover:border-primary transition-colors">
                     <option>За месяц</option>
                     <option>За неделю</option>
                     <option>За всё время</option>
                 </select>
-                <svg class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                <svg class="absolute right-2 md:right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
             </div>
         </div>
 
         <!-- Top 3 Podium -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-8 md:mb-12">
             {% for entry in leaderboard|slice:":3" %}
             <div class="{% if forloop.counter == 1 %}md:order-2{% elif forloop.counter == 2 %}md:order-1{% else %}md:order-3{% endif %}">
-                <div class="bg-white rounded-3xl p-8 shadow-lg {% if forloop.counter == 1 %}border-4 border-yellow-400 transform scale-105{% else %}border-2 border-gray-200{% endif %} relative transition-all duration-300 hover:shadow-xl">
+                <div class="bg-white rounded-2xl md:rounded-3xl p-5 md:p-8 shadow-lg {% if forloop.counter == 1 %}border-4 border-yellow-400 md:transform md:scale-105{% else %}border-2 border-gray-200{% endif %} relative transition-all duration-300 hover:shadow-xl">
                     <!-- Medal Badge -->
-                    <div class="absolute -top-6 left-1/2 -translate-x-1/2 w-14 h-14 rounded-full flex items-center justify-center {% if forloop.counter == 1 %}bg-yellow-400{% elif forloop.counter == 2 %}bg-gray-400{% else %}bg-orange-400{% endif %} shadow-lg border-4 border-white">
-                        <svg class="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 20 20">
-                            {% if forloop.counter == 1 %}
-                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
-                            {% else %}
-                            <text x="10" y="15" text-anchor="middle" font-size="12" font-weight="bold" fill="white">{{ forloop.counter }}</text>
-                            {% endif %}
-                        </svg>
+                    <div class="absolute -top-4 md:-top-6 left-1/2 -translate-x-1/2 w-12 h-12 md:w-14 md:h-14 rounded-full flex items-center justify-center {% if forloop.counter == 1 %}bg-yellow-400{% elif forloop.counter == 2 %}bg-gray-400{% else %}bg-orange-400{% endif %} shadow-lg border-4 border-white">
+                        <span class="text-white font-bold text-xl md:text-2xl">{{ forloop.counter }}</span>
                     </div>
                     
                     <!-- Avatar with Emoji Background -->
-                    <div class="flex justify-center mb-4 mt-4">
+                    <div class="flex justify-center mb-3 md:mb-4 mt-2 md:mt-4">
                         <div class="relative">
-                            <div class="w-20 h-20 rounded-full bg-gradient-to-br from-purple-100 to-blue-100 flex items-center justify-center text-4xl">
+                            <div class="w-16 h-16 md:w-20 md:h-20 rounded-full bg-gradient-to-br from-purple-100 to-blue-100 flex items-center justify-center text-3xl md:text-4xl">
                                 {% if forloop.counter == 1 %}🎓{% elif forloop.counter == 2 %}👨‍🎓{% else %}👩‍🎓{% endif %}
                             </div>
                         </div>
                     </div>
                     
                     <!-- User Info -->
-                    <h3 class="font-heading font-bold text-xl text-center text-gray-800 mb-2">{{ entry.user_profile.user.first_name }} {{ entry.user_profile.user.last_name }}</h3>
-                    <p class="text-center text-primary font-bold text-2xl mb-4">{{ entry.points|default:0 }} XP</p>
+                    <h3 class="font-heading font-bold text-lg md:text-xl text-center text-gray-800 mb-1 md:mb-2 truncate px-2">{{ entry.user_profile.user.first_name }} {{ entry.user_profile.user.last_name }}</h3>
+                    <p class="text-center text-primary font-bold text-xl md:text-2xl mb-3 md:mb-4">{{ entry.points|default:0|floatformat:0 }} XP</p>
                     
                     <!-- Progress Bar -->
-                    <div class="space-y-2">
-                        <div class="h-3 bg-gray-100 rounded-full overflow-hidden">
+                    <div class="space-y-1 md:space-y-2">
+                        <div class="h-2.5 md:h-3 bg-gray-100 rounded-full overflow-hidden">
                             <div class="h-full bg-gradient-to-r from-green-400 to-green-500 rounded-full transition-all duration-500" style="width: {% widthratio entry.points 13000 100 %}%;"></div>
                         </div>
-                        <p class="text-sm text-right text-gray-500 font-medium">{% widthratio entry.points 13000 100 %}%</p>
+                        <p class="text-xs md:text-sm text-right text-gray-500 font-medium">{% widthratio entry.points 13000 100 %}%</p>
                     </div>
                 </div>
             </div>
@@ -80,8 +74,8 @@
 
         <!-- Leaderboard Table -->
         <div class="bg-white rounded-2xl shadow-md overflow-hidden border border-gray-200">
-            <!-- Table Header -->
-            <div class="grid grid-cols-12 gap-4 px-8 py-4 bg-gray-50 border-b border-gray-200 font-semibold text-sm text-gray-600">
+            <!-- Table Header - Hidden on Mobile -->
+            <div class="hidden md:grid grid-cols-12 gap-4 px-8 py-4 bg-gray-50 border-b border-gray-200 font-semibold text-sm text-gray-600">
                 <div class="col-span-1">Место</div>
                 <div class="col-span-5">Ученик</div>
                 <div class="col-span-3">Очки</div>
@@ -91,7 +85,8 @@
             <!-- Table Body -->
             <div class="divide-y divide-gray-100">
                 {% for entry in leaderboard|slice:"3:" %}
-                <div class="grid grid-cols-12 gap-4 px-8 py-5 hover:bg-gray-50 transition-colors items-center">
+                <!-- Desktop View -->
+                <div class="hidden md:grid grid-cols-12 gap-4 px-8 py-5 hover:bg-gray-50 transition-colors items-center">
                     <!-- Rank -->
                     <div class="col-span-1">
                         <span class="font-bold text-gray-700 text-lg">{{ forloop.counter|add:3 }}</span>
@@ -107,7 +102,7 @@
                     
                     <!-- Points -->
                     <div class="col-span-3">
-                        <span class="text-primary font-bold text-lg">{{ entry.points|default:0|floatformat:0 }}</span>
+                        <span class="text-primary font-bold text-lg">{{ entry.points|default:0|floatformat:0 }} XP</span>
                     </div>
                     
                     <!-- Progress -->
@@ -118,8 +113,39 @@
                         <span class="text-sm text-gray-500 font-medium min-w-[3rem] text-right">{% widthratio entry.points 13000 100 %}%</span>
                     </div>
                 </div>
+                
+                <!-- Mobile View -->
+                <div class="md:hidden p-4 hover:bg-gray-50 transition-colors">
+                    <div class="flex items-center gap-4">
+                        <!-- Rank Badge -->
+                        <div class="flex-shrink-0 w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center">
+                            <span class="font-bold text-gray-700 text-lg">{{ forloop.counter|add:3 }}</span>
+                        </div>
+                        
+                        <!-- Avatar -->
+                        <div class="flex-shrink-0 w-12 h-12 rounded-full bg-gradient-to-br from-purple-100 to-blue-100 flex items-center justify-center text-2xl">
+                            👤
+                        </div>
+                        
+                        <!-- User Info -->
+                        <div class="flex-1 min-w-0">
+                            <h4 class="font-semibold text-gray-800 text-base truncate mb-1">
+                                {{ entry.user_profile.user.first_name }} {{ entry.user_profile.user.last_name }}
+                            </h4>
+                            <p class="text-primary font-bold text-sm mb-2">{{ entry.points|default:0|floatformat:0 }} XP</p>
+                            
+                            <!-- Progress Bar -->
+                            <div class="flex items-center gap-2">
+                                <div class="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
+                                    <div class="h-full bg-gradient-to-r from-green-400 to-green-500 rounded-full transition-all duration-500" style="width: {% widthratio entry.points 13000 100 %}%;"></div>
+                                </div>
+                                <span class="text-xs text-gray-500 font-medium min-w-[2.5rem] text-right">{% widthratio entry.points 13000 100 %}%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 {% empty %}
-                <div class="px-8 py-12 text-center text-gray-400">
+                <div class="px-4 md:px-8 py-12 text-center text-gray-400">
                     Нет данных для отображения
                 </div>
                 {% endfor %}

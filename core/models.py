@@ -27,9 +27,10 @@ class Task(models.Model):
     topic = models.ForeignKey(Topic, related_name='tasks', on_delete=models.CASCADE, null=True, blank=True)
     question = models.TextField()
     options = models.JSONField(blank=True, null=True)
-    correct_answer = models.CharField(max_length=255)
+    correct_answer = models.CharField(max_length=255, blank=True)
     difficulty = models.IntegerField(default=1)
     order = models.IntegerField(default=0)
+    original_test_id = models.IntegerField(null=True, blank=True)
 
     class Meta:
         ordering = ['order']
