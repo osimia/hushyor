@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from .models import Subject
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
@@ -19,24 +19,28 @@ from django.shortcuts import render
 
 def main_view(request):
     from .models import Task, TaskAttempt
-    from django.db.models import Count
+    from django.db.models import Count, Q
     
-    subjects = Subject.objects.annotate(total_tasks=Count('tasks', distinct=True))
-
-    solved_by_subject = {}
+    # Оптимизированный запрос с annotate для устранения N+1
     if request.user.is_authenticated:
-        solved_rows = (
-            TaskAttempt.objects.filter(user=request.user, is_solved=True)
-            .values('task__subject')
-            .annotate(cnt=Count('id'))
+        subjects = Subject.objects.annotate(
+            total_tasks=Count('tasks', distinct=True),
+            completed_tasks=Count(
+                'tasks',
+                filter=Q(tasks__taskattempt__user=request.user, tasks__taskattempt__is_solved=True),
+                distinct=True
+            )
         )
-        solved_by_subject = {row['task__subject']: row['cnt'] for row in solved_rows}
+    else:
+        subjects = Subject.objects.annotate(
+            total_tasks=Count('tasks', distinct=True)
+        )
 
     # Добавляем информацию о прогрессе к каждому предмету
     subjects_with_progress = []
     for subject in subjects:
         total = subject.total_tasks or 0
-        completed = solved_by_subject.get(subject.id, 0) if request.user.is_authenticated else 0
+        completed = subject.completed_tasks if request.user.is_authenticated else 0
         percentage = int((completed / total) * 100) if total > 0 else 0
 
         subject.completed = completed
@@ -44,12 +48,16 @@ def main_view(request):
         subject.percentage = percentage
         subjects_with_progress.append(subject)
     
-    # Статистика для главной страницы
-    stats = {
-        'total_users': User.objects.count(),
-        'total_tasks': Task.objects.count(),
-        'total_subjects': Subject.objects.count(),
-    }
+    # Статистика для главной страницы (кэшируем на 5 минут)
+    from django.core.cache import cache
+    stats = cache.get('main_stats')
+    if stats is None:
+        stats = {
+            'total_users': User.objects.count(),
+            'total_tasks': Task.objects.count(),
+            'total_subjects': Subject.objects.count(),
+        }
+        cache.set('main_stats', stats, 300)  # 5 минут
     
     return render(request, 'main.html', {
         'subjects': subjects_with_progress,
@@ -58,24 +66,37 @@ def main_view(request):
 
 def subject_view(request, subject_id):
     from .models import Task, Topic, UserProgress, TaskAttempt
-    subject = Subject.objects.get(id=subject_id)
-    topics = Topic.objects.filter(subject=subject).prefetch_related('tasks')
+    from django.db.models import Prefetch
+    
+    subject = get_object_or_404(Subject, id=subject_id)
+    
+    # Оптимизированная загрузка тем с задачами
+    topics = Topic.objects.filter(subject=subject).prefetch_related(
+        Prefetch('tasks', queryset=Task.objects.only('id', 'topic_id', 'order'))
+    )
+    
+    # Получаем все решенные задачи одним запросом
+    solved_task_ids = set()
+    if request.user.is_authenticated:
+        solved_task_ids = set(
+            TaskAttempt.objects.filter(
+                user=request.user,
+                task__subject=subject,
+                is_solved=True
+            ).values_list('task_id', flat=True)
+        )
     
     # Calculate progress for each topic
     total_completed = 0
     for topic in topics:
         topic.total_count = topic.tasks.count()
-        topic.completed_count = 0
         
-        # Подсчет решенных задач для авторизованного пользователя
+        # Подсчет решенных задач из предзагруженного набора
         if request.user.is_authenticated:
-            topic_task_ids = topic.tasks.values_list('id', flat=True)
-            topic.completed_count = TaskAttempt.objects.filter(
-                user=request.user,
-                task_id__in=topic_task_ids,
-                is_solved=True
-            ).count()
+            topic.completed_count = sum(1 for task in topic.tasks.all() if task.id in solved_task_ids)
             total_completed += topic.completed_count
+        else:
+            topic.completed_count = 0
         
         topic.progress_dots = range(min(topic.total_count, 4))  # Show max 4 dots
         topic.is_completed = (topic.completed_count == topic.total_count and topic.total_count > 0)
@@ -134,8 +155,11 @@ def task_view(request, task_id):
     from .models import Task, TaskAttempt, UserProfile, Leaderboard
     from .ai_helper import get_theory_lesson, get_hint, get_ai_response
     from django.http import JsonResponse
+    import logging
     
-    task = Task.objects.get(id=task_id)
+    logger = logging.getLogger(__name__)
+    
+    task = get_object_or_404(Task.objects.select_related('subject', 'topic'), id=task_id)
     result = None
     ai_reply = None
     points_earned = 0
@@ -148,88 +172,139 @@ def task_view(request, task_id):
             task=task
         )
         attempt_info = attempt
+        logger.info(f"User {request.user.id} viewing task {task_id}")
     
     if request.method == 'POST':
         # Проверяем, это AJAX запрос или нет
         is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
         
-        if 'theory' in request.POST:
-            # Запрос теории
-            ai_reply = get_theory_lesson(task.question, task.subject.title)
-            if is_ajax:
-                return JsonResponse({'ai_reply': ai_reply})
-        elif 'hint' in request.POST:
-            # Запрос подсказки
-            ai_reply = get_hint(task.question, task.subject.title)
-            if is_ajax:
-                return JsonResponse({'ai_reply': ai_reply})
-        elif 'ai_message' in request.POST:
-            # Произвольный вопрос к ИИ
-            message = request.POST.get('ai_message', '')
-            if message.strip():
-                ai_reply = get_ai_response(message, task.question, task.subject.title)
+        try:
+            # Проверка rate limit для AI запросов
+            if 'theory' in request.POST or 'hint' in request.POST or 'ai_message' in request.POST:
+                from django.core.cache import cache
+                
+                # Создаем ключ для rate limiting
+                user_key = f'ai_limit_{request.user.id if request.user.is_authenticated else request.META.get("REMOTE_ADDR")}'
+                requests_count = cache.get(user_key, 0)
+                
+                if requests_count >= 10:  # Максимум 10 AI запросов в час
+                    logger.warning(f"AI rate limit exceeded for {user_key}")
+                    if is_ajax:
+                        return JsonResponse({
+                            'error': 'Превышен лимит AI запросов. Попробуйте через час.'
+                        }, status=429)
+                    messages.error(request, 'Превышен лимит AI запросов. Попробуйте через час.')
+                    return redirect(f'/task/{task_id}/')
+                
+                # Увеличиваем счетчик
+                cache.set(user_key, requests_count + 1, 3600)  # 1 час
+            
+            if 'theory' in request.POST:
+                # Запрос теории
+                logger.info(f"AI theory request for task {task_id} by user {request.user.id if request.user.is_authenticated else 'anonymous'}")
+                ai_reply = get_theory_lesson(task.question, task.subject.title)
                 if is_ajax:
                     return JsonResponse({'ai_reply': ai_reply})
-        else:
-            # Проверка ответа
-            answer = request.POST.get('answer', '').strip()
-            is_correct = (answer == task.correct_answer)
-            result = is_correct
-            
-            # Обработка попыток и начисление очков для авторизованных пользователей
-            if request.user.is_authenticated and attempt_info:
-                if not attempt_info.is_solved:
-                    attempt_info.attempts += 1
-                    
-                    if is_correct:
-                        # Задача решена правильно
-                        attempt_info.is_solved = True
+            elif 'hint' in request.POST:
+                # Запрос подсказки
+                logger.info(f"AI hint request for task {task_id} by user {request.user.id if request.user.is_authenticated else 'anonymous'}")
+                ai_reply = get_hint(task.question, task.subject.title)
+                if is_ajax:
+                    return JsonResponse({'ai_reply': ai_reply})
+            elif 'ai_message' in request.POST:
+                # Произвольный вопрос к ИИ
+                message = request.POST.get('ai_message', '').strip()
+                if message and len(message) <= 500:  # Валидация длины
+                    logger.info(f"AI custom question for task {task_id}")
+                    ai_reply = get_ai_response(message, task.question, task.subject.title)
+                    if is_ajax:
+                        return JsonResponse({'ai_reply': ai_reply})
+                elif is_ajax:
+                    return JsonResponse({'error': 'Сообщение слишком длинное или пустое'}, status=400)
+            else:
+                # Проверка ответа
+                answer = request.POST.get('answer', '').strip()
+                
+                # Валидация ответа
+                if not answer:
+                    if is_ajax:
+                        return JsonResponse({'error': 'Ответ не может быть пустым'}, status=400)
+                    messages.error(request, 'Ответ не может быть пустым')
+                    return redirect(f'/task/{task_id}/')
+                
+                if len(answer) > 100:
+                    if is_ajax:
+                        return JsonResponse({'error': 'Ответ слишком длинный'}, status=400)
+                    messages.error(request, 'Ответ слишком длинный')
+                    return redirect(f'/task/{task_id}/')
+                
+                is_correct = (answer == task.correct_answer)
+                result = is_correct
+                
+                logger.info(f"User {request.user.id if request.user.is_authenticated else 'anonymous'} submitted answer for task {task_id}: {'correct' if is_correct else 'incorrect'}")
+                
+                # Обработка попыток и начисление очков для авторизованных пользователей
+                if request.user.is_authenticated and attempt_info:
+                    if not attempt_info.is_solved:
+                        attempt_info.attempts += 1
                         
-                        # Начисление очков: 100% за первую попытку, 50% за последующие
-                        base_points = task.difficulty * 5  # 5 очков за уровень сложности
-                        if attempt_info.attempts == 1:
-                            points_earned = base_points
-                        else:
-                            points_earned = base_points // 2  # Половина очков
-                        
-                        attempt_info.points_earned = points_earned
-                        
-                        # Обновляем профиль пользователя
-                        try:
-                            profile = UserProfile.objects.get(user=request.user)
-                            profile.xp += points_earned
-                            profile.save()
+                        if is_correct:
+                            # Задача решена правильно
+                            attempt_info.is_solved = True
                             
-                            # Обновляем таблицу лидеров
-                            leaderboard, _ = Leaderboard.objects.get_or_create(user_profile=profile)
-                            leaderboard.points = profile.xp
-                            leaderboard.save()
-                        except UserProfile.DoesNotExist:
+                            # Начисление очков: 100% за первую попытку, 50% за последующие
+                            base_points = task.difficulty * 5  # 5 очков за уровень сложности
+                            if attempt_info.attempts == 1:
+                                points_earned = base_points
+                            else:
+                                points_earned = base_points // 2  # Половина очков
+                            
+                            attempt_info.points_earned = points_earned
+                            
+                            # Обновляем профиль пользователя
+                            try:
+                                profile, created = UserProfile.objects.get_or_create(user=request.user)
+                                profile.xp += points_earned
+                                profile.save()
+                                
+                                # Обновляем таблицу лидеров
+                                leaderboard, _ = Leaderboard.objects.get_or_create(user_profile=profile)
+                                leaderboard.points = profile.xp
+                                leaderboard.save()
+                                
+                                logger.info(f"Awarded {points_earned} points to user {request.user.id}")
+                            except Exception as e:
+                                logger.error(f"Error awarding points: {e}", exc_info=True)
+                        
+                        attempt_info.save()
+                
+                # Если это AJAX запрос, возвращаем JSON
+                if is_ajax:
+                    # Находим следующую задачу
+                    next_task_id = None
+                    if task.topic:
+                        topic_tasks = Task.objects.filter(topic=task.topic).order_by('order')
+                        task_list = list(topic_tasks)
+                        try:
+                            current_index = task_list.index(task)
+                            if current_index < len(task_list) - 1:
+                                next_task_id = task_list[current_index + 1].id
+                        except ValueError:
                             pass
                     
-                    attempt_info.save()
-            
-            # Если это AJAX запрос, возвращаем JSON
+                    return JsonResponse({
+                        'is_correct': is_correct,
+                        'points_earned': points_earned,
+                        'correct_answer': task.correct_answer,
+                        'attempts': attempt_info.attempts if attempt_info else 1,
+                        'next_task_id': next_task_id
+                    })
+        except Exception as e:
+            logger.error(f"Error in task_view POST: {e}", exc_info=True)
             if is_ajax:
-                # Находим следующую задачу
-                next_task_id = None
-                if task.topic:
-                    topic_tasks = Task.objects.filter(topic=task.topic).order_by('order')
-                    task_list = list(topic_tasks)
-                    try:
-                        current_index = task_list.index(task)
-                        if current_index < len(task_list) - 1:
-                            next_task_id = task_list[current_index + 1].id
-                    except ValueError:
-                        pass
-                
-                return JsonResponse({
-                    'is_correct': is_correct,
-                    'points_earned': points_earned,
-                    'correct_answer': task.correct_answer,
-                    'attempts': attempt_info.attempts if attempt_info else 1,
-                    'next_task_id': next_task_id
-                })
+                return JsonResponse({'error': 'Произошла ошибка. Попробуйте позже.'}, status=500)
+            messages.error(request, 'Произошла ошибка. Попробуйте позже.')
+            return redirect(f'/task/{task_id}/')
     
     # Получаем все задачи этой темы для навигации и правильного счетчика X из N
     # Важно: счетчик и навигация должны считаться по полному списку задач темы,
@@ -314,7 +389,9 @@ def profile_view(request):
 def login_view(request):
     from .forms import CustomLoginForm
     from .models import UserProfile
+    import logging
     
+    logger = logging.getLogger(__name__)
     error_message = None
     
     if request.method == 'POST':
@@ -345,11 +422,14 @@ def login_view(request):
                 
                 if user is not None:
                     login(request, user)
+                    logger.info(f"User {user.username} (ID: {user.id}) logged in successfully from {request.META.get('REMOTE_ADDR')}")
                     return redirect('/')
                 else:
                     error_message = 'Неверный пароль'
+                    logger.warning(f"Failed login attempt for phone {phone} from {request.META.get('REMOTE_ADDR')}: wrong password")
             else:
                 error_message = 'Пользователь с таким номером не найден'
+                logger.warning(f"Failed login attempt for phone {phone} from {request.META.get('REMOTE_ADDR')}: user not found")
     else:
         form = CustomLoginForm()
     

@@ -60,7 +60,19 @@ def login_api(request):
     Вход пользователя
     POST /api/auth/login/
     Body: {username, password} или {phone, password}
+    Rate limit: 5 попыток в час
     """
+    from core.throttling import LoginRateThrottle
+    from rest_framework.decorators import throttle_classes
+    
+    # Проверка rate limit
+    throttle = LoginRateThrottle()
+    if not throttle.allow_request(request, None):
+        return Response({
+            'success': False,
+            'message': 'Слишком много попыток входа. Попробуйте позже.'
+        }, status=status.HTTP_429_TOO_MANY_REQUESTS)
+    
     username = request.data.get('username')
     phone = request.data.get('phone')
     password = request.data.get('password')

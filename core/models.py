@@ -34,6 +34,18 @@ class Task(models.Model):
 
     class Meta:
         ordering = ['order']
+        indexes = [
+            models.Index(fields=['subject', 'topic']),
+            models.Index(fields=['difficulty']),
+            models.Index(fields=['order']),
+            models.Index(fields=['subject', 'order']),
+        ]
+    
+    def clean(self):
+        """Валидация полей модели"""
+        from django.core.exceptions import ValidationError
+        if self.difficulty < 1 or self.difficulty > 10:
+            raise ValidationError({'difficulty': 'Сложность должна быть от 1 до 10'})
 
     def __str__(self):
         return f"{self.subject.title}: {self.question[:30]}"
@@ -90,6 +102,11 @@ class TaskAttempt(models.Model):
     class Meta:
         unique_together = ('user', 'task')
         verbose_name_plural = 'Task Attempts'
+        indexes = [
+            models.Index(fields=['user', 'is_solved']),
+            models.Index(fields=['user', 'task', 'is_solved']),
+            models.Index(fields=['-updated_at']),
+        ]
     
     def __str__(self):
         return f"{self.user.username} - {self.task.question[:30]} - {self.attempts} попыток"

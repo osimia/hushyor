@@ -18,6 +18,7 @@ from django.contrib import admin
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from core import views
+from core.health import health_check, readiness_check, liveness_check
 
 router = DefaultRouter()
 router.register(r'subjects', views.SubjectViewSet)
@@ -26,6 +27,11 @@ router.register(r'leaderboard', views.LeaderboardViewSet)
 router.register(r'profiles', views.UserProfileViewSet)
 
 urlpatterns = [
+    # ==================== Health Checks ====================
+    path('health/', health_check, name='health'),
+    path('health/ready/', readiness_check, name='readiness'),
+    path('health/live/', liveness_check, name='liveness'),
+    
     # ==================== SEO ====================
     path('sitemap.xml', views.sitemap_view, name='sitemap'),
     path('robots.txt', views.robots_txt_view, name='robots'),

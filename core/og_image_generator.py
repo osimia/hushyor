@@ -26,30 +26,24 @@ def generate_task_og_image(task):
     # Размеры для Open Graph (рекомендация Facebook)
     width, height = 1200, 630
     
-    # Создаем изображение с красивым градиентным фоном
-    # Мягкий градиент от светло-голубого к белому
-    img = Image.new('RGB', (width, height))
+    # Создаем изображение с чистым белым фоном
+    img = Image.new('RGB', (width, height), color=(255, 255, 255))
     draw = ImageDraw.Draw(img)
     
-    # Создаем вертикальный градиент (сверху вниз)
-    for y in range(height):
-        ratio = y / height
-        # Плавный переход от светло-голубого к почти белому
-        r = int(240 + (250 - 240) * ratio)
-        g = int(245 + (252 - 245) * ratio)
-        b = int(252 + (255 - 252) * ratio)
-        draw.rectangle([(0, y), (width, y + 1)], fill=(r, g, b))
-    
-    draw = ImageDraw.Draw(img)
+    # Добавляем декоративные элементы - очень светлые круги в углах
+    # Верхний правый угол - светло-голубой круг
+    draw.ellipse([900, -100, 1300, 300], fill=(230, 235, 250))
+    # Нижний левый угол - светло-фиолетовый круг
+    draw.ellipse([-100, 400, 300, 800], fill=(245, 235, 250))
     
     # Загружаем шрифты с поддержкой таджикского языка
     title_font = None
     question_font = None
     small_font = None
     
-    # Приоритет шрифтов: используем обычный DejaVu Sans (не Bold) для более легкого вида
+    # Приоритет шрифтов: используем обычный DejaVu Sans для читабельности
     font_paths = [
-        # Шрифты из core/fonts/ - приоритет обычному шрифту, не жирному
+        # Шрифты из core/fonts/
         os.path.join(settings.BASE_DIR, 'core', 'fonts', 'DejaVuSans.ttf'),
         os.path.join(settings.BASE_DIR, 'core', 'fonts', 'DejaVuSans-Bold.ttf'),
         # Системные шрифты DejaVu (Linux)
@@ -57,28 +51,50 @@ def generate_task_og_image(task):
         '/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf',
         # macOS
         '/System/Library/Fonts/Supplemental/DejaVuSans.ttf',
-        '/System/Library/Fonts/Supplemental/DejaVuSans-Bold.ttf',
         # Windows
         'C:\\Windows\\Fonts\\DejaVuSans.ttf',
+    ]
+    
+    bold_font_paths = [
+        os.path.join(settings.BASE_DIR, 'core', 'fonts', 'DejaVuSans-Bold.ttf'),
+        '/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf',
+        '/System/Library/Fonts/Supplemental/DejaVuSans-Bold.ttf',
         'C:\\Windows\\Fonts\\DejaVuSans-Bold.ttf',
     ]
     
     font_loaded = False
     loaded_font_path = None
+    loaded_bold_font_path = None
+    
+    # Загружаем обычный шрифт
     for font_path in font_paths:
         try:
             if os.path.exists(font_path):
-                # Используем тонкий шрифт и меньшие размеры для элегантности
-                title_font = ImageFont.truetype(font_path, 28)  # Уменьшен
-                question_font = ImageFont.truetype(font_path, 26)  # Уменьшен
-                small_font = ImageFont.truetype(font_path, 22)  # Уменьшен
+                question_font = ImageFont.truetype(font_path, 32)  # Для вопроса
+                small_font = ImageFont.truetype(font_path, 26)  # Для вариантов
                 font_loaded = True
-                loaded_font_path = font_path  # Сохраняем путь для использования позже
-                logger.info(f"Successfully loaded font from: {font_path}")
+                loaded_font_path = font_path
+                logger.info(f"Successfully loaded regular font from: {font_path}")
                 break
         except Exception as e:
             logger.warning(f"Failed to load font from {font_path}: {str(e)}")
             continue
+    
+    # Загружаем жирный шрифт для заголовка
+    for bold_path in bold_font_paths:
+        try:
+            if os.path.exists(bold_path):
+                title_font = ImageFont.truetype(bold_path, 36)  # Жирный для бренда
+                loaded_bold_font_path = bold_path
+                logger.info(f"Successfully loaded bold font from: {bold_path}")
+                break
+        except Exception as e:
+            logger.warning(f"Failed to load bold font from {bold_path}: {str(e)}")
+            continue
+    
+    # Если жирный не загрузился, используем обычный
+    if not loaded_bold_font_path and loaded_font_path:
+        title_font = ImageFont.truetype(loaded_font_path, 36)
     
     # Если не нашли ни один шрифт - используем встроенный (но он не поддерживает таджикский)
     if not font_loaded:
@@ -95,35 +111,43 @@ def generate_task_og_image(task):
             small_font = None
     
     # Отступы
-    padding = 60
+    padding = 70
+    
+    # Добавляем логотип/бренд вверху
+    brand_y = 40
+    draw.text((padding, brand_y), "hushyor", fill=(79, 109, 245), font=title_font)
+    
+    # Добавляем тонкую линию под брендом
+    line_y = brand_y + 50
+    draw.rectangle([(padding, line_y), (padding + 120, line_y + 3)], fill=(79, 109, 245))
     
     # Очищаем текст вопроса от HTML-тегов
     question_text = strip_tags(task.question)
     
-    # Ограничиваем длину вопроса (меньше, чтобы оставить место для вариантов)
-    if len(question_text) > 120:
-        question_text = question_text[:117] + "..."
+    # Ограничиваем длину вопроса
+    if len(question_text) > 150:
+        question_text = question_text[:147] + "..."
     
     # Разбиваем текст на строки с учетом ширины
-    max_chars_per_line = 40
+    max_chars_per_line = 55
     lines = textwrap.wrap(question_text, width=max_chars_per_line, break_long_words=False, break_on_hyphens=False)
     
     # Ограничиваем количество строк вопроса
     max_lines = 3
     if len(lines) > max_lines:
         lines = lines[:max_lines]
-        if len(lines[-1]) > 35:
-            lines[-1] = lines[-1][:32] + "..."
+        if len(lines[-1]) > 50:
+            lines[-1] = lines[-1][:47] + "..."
     
-    # Рисуем вопрос (темный текст на светлом фоне)
-    y_offset = 80
-    line_height = 45
+    # Рисуем вопрос (темно-серый текст)
+    y_offset = line_y + 40
+    line_height = 50
     for line in lines:
         draw.text((padding, y_offset), line, fill=(30, 35, 50), font=question_font)
         y_offset += line_height
     
     # Добавляем отступ после вопроса
-    y_offset += 30
+    y_offset += 25
     
     # Рисуем варианты ответов (если есть)
     if task.options:
@@ -135,35 +159,73 @@ def generate_task_og_image(task):
             else:
                 options = task.options
             
-            # Создаем очень тонкий шрифт для вариантов
-            option_font = ImageFont.truetype(loaded_font_path, 24) if font_loaded and loaded_font_path else small_font
-            
-            # Рисуем каждый вариант с фоном
+            # Рисуем каждый вариант с современным дизайном
             for key in sorted(options.keys())[:4]:  # Максимум 4 варианта
                 value = strip_tags(str(options[key]))
                 
                 # Ограничиваем длину варианта
-                if len(value) > 50:
-                    value = value[:47] + "..."
+                if len(value) > 60:
+                    value = value[:57] + "..."
                 
-                # Создаем более тонкие закругленные блоки
-                box_height = 42  # Уменьшена высота
+                # Параметры блока
+                box_height = 50
                 box_width = width - (padding * 2)
                 
-                # Более светлый синий цвет для блоков
-                blue_color = (103, 128, 245)  # Чуть светлее для элегантности
-                
-                # Рисуем закругленный блок с синим фоном
+                # Белый блок с тенью (эффект карточки)
+                # Тень
+                shadow_offset = 3
                 draw.rounded_rectangle(
-                    [(padding, y_offset - 6), (padding + box_width, y_offset + box_height - 6)],
-                    radius=21,  # Чуть меньший радиус для пропорциональности
-                    fill=blue_color
+                    [(padding + shadow_offset, y_offset + shadow_offset), 
+                     (padding + box_width + shadow_offset, y_offset + box_height + shadow_offset)],
+                    radius=12,
+                    fill=(200, 200, 210, 50)
                 )
                 
-                # Рисуем текст варианта белым цветом на синем фоне
-                option_text = f"{key}. {value}"
-                draw.text((padding + 16, y_offset), option_text, fill=(255, 255, 255, 240), font=option_font)
-                y_offset += box_height + 15  # Отступ между вариантами
+                # Основной блок
+                draw.rounded_rectangle(
+                    [(padding, y_offset), (padding + box_width, y_offset + box_height)],
+                    radius=12,
+                    fill=(255, 255, 255),
+                    outline=(220, 225, 235),
+                    width=2
+                )
+                
+                # Цветной круг с буквой варианта
+                circle_x = padding + 20
+                circle_y = y_offset + 25
+                circle_radius = 18
+                
+                # Градиентный цвет для каждого варианта
+                colors = {
+                    'A': (79, 109, 245),   # Синий
+                    'B': (99, 179, 237),   # Голубой
+                    'C': (168, 85, 247),   # Фиолетовый
+                    'D': (236, 72, 153)    # Розовый
+                }
+                circle_color = colors.get(key, (79, 109, 245))
+                
+                draw.ellipse(
+                    [(circle_x - circle_radius, circle_y - circle_radius),
+                     (circle_x + circle_radius, circle_y + circle_radius)],
+                    fill=circle_color
+                )
+                
+                # Буква варианта белым цветом в круге
+                # Центрируем букву в круге
+                letter_bbox = draw.textbbox((0, 0), key, font=small_font)
+                letter_width = letter_bbox[2] - letter_bbox[0]
+                letter_height = letter_bbox[3] - letter_bbox[1]
+                letter_x = circle_x - letter_width // 2
+                letter_y = circle_y - letter_height // 2 - 3
+                
+                draw.text((letter_x, letter_y), key, fill=(255, 255, 255), font=small_font)
+                
+                # Текст варианта
+                text_x = circle_x + circle_radius + 15
+                text_y = y_offset + 12
+                draw.text((text_x, text_y), value, fill=(50, 55, 70), font=small_font)
+                
+                y_offset += box_height + 12  # Отступ между вариантами
                 
         except Exception as e:
             logger.warning(f"Failed to parse options: {str(e)}")
