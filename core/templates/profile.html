@@ -11,7 +11,18 @@
                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
                 Назад
             </a>
-            <h1 class="font-heading font-bold text-3xl md:text-4xl text-foreground">Профиль</h1>
+            <div class="flex items-center justify-between gap-4">
+                <h1 class="font-heading font-bold text-3xl md:text-4xl text-foreground">Профиль</h1>
+                <button
+                    type="button"
+                    id="shareSiteBtn"
+                    class="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-border/60 bg-white text-foreground font-semibold shadow-sm hover:bg-muted/40 transition-colors"
+                >
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 12v7a1 1 0 001 1h14a1 1 0 001-1v-7M16 6l-4-4-4 4M12 2v14"/></svg>
+                    Поделиться
+                </button>
+            </div>
+            <div id="shareSiteStatus" class="mt-3 text-sm text-muted-foreground hidden"></div>
         </div>
 
         {% if user_profile %}
@@ -106,5 +117,46 @@
         {% endif %}
     </div>
 </section>
+
+<script>
+  (function () {
+    const btn = document.getElementById('shareSiteBtn');
+    const statusEl = document.getElementById('shareSiteStatus');
+    if (!btn) return;
+
+    function setStatus(message) {
+      if (!statusEl) return;
+      statusEl.textContent = message;
+      statusEl.classList.remove('hidden');
+      window.clearTimeout(statusEl.__t);
+      statusEl.__t = window.setTimeout(() => {
+        statusEl.classList.add('hidden');
+      }, 2500);
+    }
+
+    btn.addEventListener('click', async () => {
+      const url = 'https://hushyor.com';
+      const title = 'hushyor';
+      const text = 'Попробуй hushyor — сайт для обучения.';
+
+      try {
+        if (navigator.share) {
+          await navigator.share({ title, text, url });
+          return;
+        }
+
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          await navigator.clipboard.writeText(url);
+          setStatus('Ссылка скопирована');
+          return;
+        }
+
+        window.prompt('Скопируйте ссылку:', url);
+      } catch (e) {
+        setStatus('Не удалось поделиться');
+      }
+    });
+  })();
+</script>
 
 {% endblock %}
