@@ -116,14 +116,14 @@ def generate_task_og_image(task):
             lines[-1] = lines[-1][:32] + "..."
     
     # Рисуем вопрос (темный текст на светлом фоне)
-    y_offset = 180
-    line_height = 55
+    y_offset = 80
+    line_height = 45
     for line in lines:
-        draw.text((padding, y_offset), line, fill=(40, 45, 60), font=question_font)
+        draw.text((padding, y_offset), line, fill=(30, 35, 50), font=question_font)
         y_offset += line_height
     
     # Добавляем отступ после вопроса
-    y_offset += 20
+    y_offset += 30
     
     # Рисуем варианты ответов (если есть)
     if task.options:
@@ -146,40 +146,24 @@ def generate_task_og_image(task):
                 if len(value) > 50:
                     value = value[:47] + "..."
                 
-                # Рисуем фон для варианта (светлый блок на градиентном фоне)
-                box_height = 55
+                # Создаем закругленные блоки как на картинке
+                box_height = 50
                 box_width = width - (padding * 2)
                 
-                # Создаем красивый блок с тенью для варианта
-                # Сначала рисуем легкую тень
-                shadow_offset = 2
+                # Синий цвет для блоков (как на картинке, но синий вместо зеленого)
+                blue_color = (79, 109, 245)  # Основной синий цвет сайта
+                
+                # Рисуем закругленный блок с синим фоном
                 draw.rounded_rectangle(
-                    [(padding + shadow_offset, y_offset - 10 + shadow_offset), 
-                     (padding + box_width + shadow_offset, y_offset + box_height - 10 + shadow_offset)],
-                    radius=12,
-                    fill=(220, 225, 235)  # Цвет тени
+                    [(padding, y_offset - 8), (padding + box_width, y_offset + box_height - 8)],
+                    radius=25,  # Большой радиус для сильного закругления
+                    fill=blue_color
                 )
                 
-                # Затем основной блок
-                draw.rounded_rectangle(
-                    [(padding, y_offset - 10), (padding + box_width, y_offset + box_height - 10)],
-                    radius=12,
-                    fill=(255, 255, 255),  # Белый фон
-                    outline=(230, 235, 240),  # Очень светлая обводка
-                    width=1
-                )
-                
-                # Добавляем цветной акцент слева
-                draw.rounded_rectangle(
-                    [(padding + 10, y_offset - 5), (padding + 14, y_offset + box_height - 15)],
-                    radius=2,
-                    fill=(79, 109, 245)  # Синий акцент
-                )
-                
-                # Рисуем текст варианта с отступом от акцента
-                option_text = f"{key}.  {value}"
-                draw.text((padding + 25, y_offset), option_text, fill=(40, 45, 60), font=option_font)
-                y_offset += box_height + 12  # Увеличен отступ между вариантами
+                # Рисуем текст варианта белым цветом на синем фоне
+                option_text = f"{key}. {value}"
+                draw.text((padding + 20, y_offset + 2), option_text, fill=(255, 255, 255), font=option_font)
+                y_offset += box_height + 15  # Отступ между вариантами
                 
         except Exception as e:
             logger.warning(f"Failed to parse options: {str(e)}")
