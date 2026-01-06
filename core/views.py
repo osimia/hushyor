@@ -602,19 +602,48 @@ def yandex_verification_view(request):
 
 def task_og_image_view(request, task_id):
     """Генерирует Open Graph изображение для задачи"""
-    from django.http import HttpResponse, Http404
+    from django.http import HttpResponse, Http404, HttpResponseServerError
     from .models import Task
     from .og_image_generator import generate_task_og_image
+    import logging
+    
+    logger = logging.getLogger(__name__)
     
     try:
         task = Task.objects.select_related('subject').get(id=task_id)
     except Task.DoesNotExist:
+        logger.warning(f"Task {task_id} not found for OG image generation")
         raise Http404("Task not found")
     
-    # Генерируем изображение
-    image_buffer = generate_task_og_image(task)
-    
-    # Возвращаем PNG с правильными заголовками для кэширования
-    response = HttpResponse(image_buffer.getvalue(), content_type='image/png')
-    response['Cache-Control'] = 'public, max-age=86400'  # Кэш на 24 часа
-    return response
+    try:
+        # Генерируем изображение
+        image_buffer = generate_task_og_image(task)
+        
+        # Возвращаем PNG с правильными заголовками для кэширования
+        response = HttpResponse(image_buffer.getvalue(), content_type='image/png')
+        response['Cache-Control'] = 'public, max-age=86400'  # Кэш на 24 часа
+        return response
+        
+    except Exception as e:
+        logger.error(f"Error generating OG image for task {task_id}: {str(e)}", exc_info=True)
+        # Возвращаем простое изображение-заглушку в случае ошибки
+        from PIL import Image, ImageDraw
+        from io import BytesIO
+        
+        # Создаем простую заглушку
+        img = Image.new('RGB', (1200, 630), color='#4F6DF5')
+        draw = ImageDraw.Draw(img)
+        
+        # Простой текст без шрифтов
+        try:
+            draw.text((60, 300), "hushyor.com", fill='white')
+        except:
+            pass
+        
+        buffer = BytesIO()
+        img.save(buffer, format='PNG')
+        buffer.seek(0)
+        
+        response = HttpResponse(buffer.getvalue(), content_type='image/png')
+        response['Cache-Control'] = 'public, max-age=3600'  # Кэш на 1 час для заглушки
+        return response
