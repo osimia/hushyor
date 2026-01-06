@@ -218,8 +218,8 @@
 </section>
 
 <!-- Success Modal -->
-<div id="successModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 backdrop-blur-sm">
-    <div class="relative bg-white rounded-3xl p-8 max-w-md w-full mx-4 shadow-2xl transform scale-95 opacity-0 transition-all duration-300" id="modalContent">
+<div id="successModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 backdrop-blur-sm transition-all duration-300">
+    <div class="relative bg-white rounded-3xl p-8 max-w-md w-full mx-4 shadow-2xl modal-content" id="modalContent">
         <!-- Confetti Container -->
         <div id="confettiContainer" class="absolute inset-0 pointer-events-none overflow-hidden rounded-3xl"></div>
         
@@ -287,7 +287,13 @@
 
 {% block head %}
 {% load static %}
-<style>
+<style type="text/css">
+    /* Animations */
+    @keyframes modal-appear {
+        0% { opacity: 0; transform: scale(0.8) translateY(20px); }
+        60% { transform: scale(1.05) translateY(-5px); }
+        100% { opacity: 1; transform: scale(1) translateY(0); }
+    }
     @keyframes bounce-slow {
         0%, 100% { transform: translateY(0); }
         50% { transform: translateY(-10px); }
@@ -296,12 +302,17 @@
         0% { transform: scale(1); opacity: 1; }
         75%, 100% { transform: scale(1.5); opacity: 0; }
     }
+    /* Animations */
     .animate-bounce-slow {
         animation: bounce-slow 2s ease-in-out infinite;
     }
     .animate-ping-slow {
-        animation: ping-slow 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+        animation: ping-slow 2s cubic-bezier(0.2, 0, 0.2, 1) infinite;
     }
+    .modal-content {
+        animation: modal-appear 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        transform-origin: center center;
+    }  
     @keyframes confetti-fall {
         0% { transform: translateY(-100%) rotate(0deg); opacity: 1; }
         100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
@@ -356,16 +367,29 @@
                         'X-Requested-With': 'XMLHttpRequest'
                     }
                 })
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
                 .then(data => {
                     // Восстанавливаем кнопку
                     submitButton.disabled = false;
                     submitButton.innerHTML = originalButtonText;
                     
                     if (data.is_correct) {
-                        // Правильный ответ - показываем модальное окно
+                        // Правильный ответ - показываем модальное окно и воспроизводим звук
                         const optionsObj = {{ task_options_json|safe }};
                         
+                        // Воспроизводим звук
+                        const audio = new Audio('{% static "sounds/success.wav" %}');
+                        audio.volume = 0.5;
+                        audio.play().catch(error => {
+                            console.log('Не удалось воспроизвести звук:', error);
+                        });
+
+                        // Показываем модальное окно
                         showSuccessModal(
                             data.points_earned,
                             optionsObj,
@@ -383,18 +407,44 @@
                     // Восстанавливаем кнопку
                     submitButton.disabled = false;
                     submitButton.innerHTML = originalButtonText;
-                    showErrorMessage(0);
+                    
+                    // Показываем сообщение об ошибке
+                    const errorMessage = document.getElementById('errorMessage');
+                    const attemptCount = document.getElementById('attemptCount');
+                    
+                    errorMessage.querySelector('p.text-sm').textContent = 'Произошла ошибка при проверке ответа. Попробуйте ещё раз.';
+                    attemptCount.textContent = '';
+                    errorMessage.classList.remove('hidden');
                 });
+                
+                // Предотвращаем отправку формы
+                return false;
             };
             
             taskForm.addEventListener('submit', handleSubmit);
         }
-    });
+    }, false);
+    
+    // Инициализируем звук при загрузке страницы
+    const successSound = new Audio('{% static "sounds/success.wav" %}');
+    successSound.volume = 0.5;
+    successSound.preload = 'auto';
+    
+    // Функция воспроизведения звука
+    async function playSuccessSound() {
+        try {
+            // Проверяем, что звук загружен
+            if (successSound.readyState >= 2) {
+                await successSound.play();
+            }
+        } catch (error) {
+            console.log('Не удалось воспроизвести звук:', error);
+        }
+    }
     
     // Функция показа модального окна успеха
     function showSuccessModal(points, optionsJson, correctAnswer, attempts, nextTaskId) {
         const modal = document.getElementById('successModal');
-        const modalContent = document.getElementById('modalContent');
         const pointsElement = document.getElementById('pointsEarned');
         const attemptInfo = document.getElementById('attemptInfo');
         const correctAnswerText = document.getElementById('correctAnswerText');
@@ -423,16 +473,12 @@
         modal.classList.remove('hidden');
         modal.classList.add('flex');
         
-        setTimeout(() => {
-            modalContent.classList.remove('scale-95', 'opacity-0');
-            modalContent.classList.add('scale-100', 'opacity-100');
-        }, 10);
-        
         // Создаем конфетти
         createConfetti();
         
-        // Воспроизводим звук победы
+        // Воспроизводим звук
         playSuccessSound();
+    }
     }
     
     // Функция создания конфетти

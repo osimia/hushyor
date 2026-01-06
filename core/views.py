@@ -151,7 +151,7 @@ def task_view(request, task_id):
     
     if request.method == 'POST':
         # Проверяем, это AJAX запрос или нет
-        is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+        is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest' or request.headers.get('Accept', '').startswith('application/json')
         
         if 'theory' in request.POST:
             # Запрос теории
