@@ -26,10 +26,20 @@ def generate_task_og_image(task):
     # Размеры для Open Graph (рекомендация Facebook)
     width, height = 1200, 630
     
-    # Создаем изображение с светлым фоном как на сайте
-    # background-color: hsl(210, 17%, 98%) - очень светлый серо-голубой
-    # RGB: (247, 248, 250)
-    img = Image.new('RGB', (width, height), color=(247, 248, 250))
+    # Создаем изображение с красивым градиентным фоном
+    # Мягкий градиент от светло-голубого к белому
+    img = Image.new('RGB', (width, height))
+    draw = ImageDraw.Draw(img)
+    
+    # Создаем вертикальный градиент (сверху вниз)
+    for y in range(height):
+        ratio = y / height
+        # Плавный переход от светло-голубого к почти белому
+        r = int(240 + (250 - 240) * ratio)
+        g = int(245 + (252 - 245) * ratio)
+        b = int(252 + (255 - 252) * ratio)
+        draw.rectangle([(0, y), (width, y + 1)], fill=(r, g, b))
+    
     draw = ImageDraw.Draw(img)
     
     # Загружаем шрифты с поддержкой таджикского языка
@@ -87,9 +97,13 @@ def generate_task_og_image(task):
     # Отступы
     padding = 60
     
-    # Рисуем предмет вверху (темный текст на светлом фоне)
-    subject_text = f"Задание по {task.subject.title}"
-    draw.text((padding, padding), subject_text, fill=(100, 100, 120), font=small_font)
+    # Добавляем декоративный акцентный элемент слева от заголовка
+    accent_color = (79, 109, 245)  # Синий цвет сайта
+    draw.rounded_rectangle([(padding - 10, padding - 5), (padding - 2, padding + 30)], radius=2, fill=accent_color)
+    
+    # Рисуем предмет вверху с иконкой
+    subject_text = f"📚 {task.subject.title}"
+    draw.text((padding + 5, padding), subject_text, fill=(80, 85, 100), font=small_font)
     
     # Очищаем текст вопроса от HTML-тегов
     question_text = strip_tags(task.question)
@@ -144,19 +158,36 @@ def generate_task_og_image(task):
                 box_height = 55
                 box_width = width - (padding * 2)
                 
-                # Создаем округленный прямоугольник с белым фоном как на сайте
+                # Создаем красивый блок с тенью для варианта
+                # Сначала рисуем легкую тень
+                shadow_offset = 2
+                draw.rounded_rectangle(
+                    [(padding + shadow_offset, y_offset - 10 + shadow_offset), 
+                     (padding + box_width + shadow_offset, y_offset + box_height - 10 + shadow_offset)],
+                    radius=12,
+                    fill=(220, 225, 235)  # Цвет тени
+                )
+                
+                # Затем основной блок
                 draw.rounded_rectangle(
                     [(padding, y_offset - 10), (padding + box_width, y_offset + box_height - 10)],
                     radius=12,
-                    fill=(255, 255, 255),  # Белый фон как на сайте
-                    outline=(220, 225, 230),  # Светло-серая обводка
+                    fill=(255, 255, 255),  # Белый фон
+                    outline=(230, 235, 240),  # Очень светлая обводка
                     width=1
                 )
                 
-                # Рисуем текст варианта (темный текст)
+                # Добавляем цветной акцент слева
+                draw.rounded_rectangle(
+                    [(padding + 10, y_offset - 5), (padding + 14, y_offset + box_height - 15)],
+                    radius=2,
+                    fill=(79, 109, 245)  # Синий акцент
+                )
+                
+                # Рисуем текст варианта с отступом от акцента
                 option_text = f"{key}.  {value}"
-                draw.text((padding + 20, y_offset), option_text, fill=(40, 45, 60), font=option_font)
-                y_offset += box_height + 8  # Отступ между вариантами
+                draw.text((padding + 25, y_offset), option_text, fill=(40, 45, 60), font=option_font)
+                y_offset += box_height + 12  # Увеличен отступ между вариантами
                 
         except Exception as e:
             logger.warning(f"Failed to parse options: {str(e)}")
