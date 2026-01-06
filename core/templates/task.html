@@ -91,9 +91,9 @@
                     </form>
 
                     <!-- Result Message (динамическое сообщение об ошибке) -->
-                    <div id="errorMessage" class="mt-6 p-4 rounded-xl bg-red-50 border-2 border-red-200 hidden">
+                    <div id="errorMessage" class="mt-6 p-4 rounded-xl bg-red-50 border-2 border-red-200 hidden opacity-0 transition-all duration-300 transform">
                         <div class="flex items-center gap-3">
-                            <svg class="w-6 h-6 text-red-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path></svg>
+                            <svg class="w-6 h-6 text-red-600 animate-bounce-slow" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path></svg>
                             <div class="flex-1">
                                 <p class="font-semibold text-red-800">Неправильно</p>
                                 <p class="text-sm text-red-700 mt-1">Попробуйте еще раз! Используйте подсказку или теорию, если нужна помощь.</p>
@@ -200,16 +200,16 @@
 
                     <!-- Input Form -->
                     <div class="p-4 bg-card border-t border-border/50">
-                        <form method="post">
-                            {% csrf_token %}
-                            <input type="hidden" name="ai_message" value="1">
-                            <div class="flex items-center gap-2">
-                                <input type="text" name="ai_message" class="flex-1 px-4 py-3 bg-muted border-0 rounded-2xl text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary" placeholder="Задайте вопрос ИИ...">
-                                <button type="submit" class="p-3 bg-primary hover:bg-primary/90 rounded-full transition-colors">
-                                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
-                                </button>
-                            </div>
-                        </form>
+                        <form method="post" id="aiForm">
+                        {% csrf_token %}
+                        <input type="hidden" name="ai_message" value="1">
+                        <div class="flex items-center gap-2">
+                            <input type="text" name="ai_message" class="flex-1 px-4 py-3 bg-muted border-0 rounded-2xl text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary" placeholder="Задайте вопрос ИИ...">
+                            <button type="submit" class="p-3 bg-primary hover:bg-primary/90 rounded-full transition-colors">
+                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+                            </button>
+                        </div>
+                    </form>
                     </div>
                 </div>
             </div>
@@ -288,6 +288,11 @@
 {% block head %}
 {% load static %}
 <style type="text/css">
+    /* Error message animation */
+    #errorMessage {
+        transition: opacity 0.3s ease-in-out;
+    }
+    
     /* Animations */
     @keyframes modal-appear {
         0% { opacity: 0; transform: scale(0.8) translateY(20px); }
@@ -326,6 +331,10 @@
 </style>
 <script>
     // Автопрокрутка чата к последнему сообщению
+    // Предзагружаем звук успеха
+    const successSound = new Audio('{% static "sounds/success.wav" %}');
+    successSound.preload = 'auto';
+    
     document.addEventListener('DOMContentLoaded', function() {
         const chatMessages = document.getElementById('aiChatMessages');
         if (chatMessages) {
@@ -336,8 +345,8 @@
         const taskForm = document.getElementById('taskForm');
         
         if (taskForm) {
-            const handleSubmit = function(e) {
-                e.preventDefault(); // Останавливаем обычную отправку формы
+            taskForm.addEventListener('submit', function(e) {
+                e.preventDefault(); // Останавливаем отправку формы
                 
                 const formData = new FormData(taskForm);
                 const submitButton = taskForm.querySelector('button[type="submit"]');
@@ -364,7 +373,8 @@
                     method: 'POST',
                     body: formData,
                     headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
                     }
                 })
                 .then(response => {
@@ -379,24 +389,31 @@
                     submitButton.innerHTML = originalButtonText;
                     
                     if (data.is_correct) {
-                        // Правильный ответ - показываем модальное окно и воспроизводим звук
+                        // Правильный ответ - показываем модальное окно
                         const optionsObj = {{ task_options_json|safe }};
                         
-                        // Воспроизводим звук
-                        const audio = new Audio('{% static "sounds/success.wav" %}');
-                        audio.volume = 0.5;
-                        audio.play().catch(error => {
+                        // Воспроизводим звук и показываем модальное окно
+                        successSound.currentTime = 0;
+                        successSound.volume = 0.5;
+                        successSound.play().then(() => {
+                            showSuccessModal(
+                                data.points_earned,
+                                optionsObj,
+                                data.correct_answer,
+                                data.attempts,
+                                data.next_task_id
+                            );
+                        }).catch(error => {
                             console.log('Не удалось воспроизвести звук:', error);
+                            // Показываем модальное окно даже если звук не воспроизвелся
+                            showSuccessModal(
+                                data.points_earned,
+                                optionsObj,
+                                data.correct_answer,
+                                data.attempts,
+                                data.next_task_id
+                            );
                         });
-
-                        // Показываем модальное окно
-                        showSuccessModal(
-                            data.points_earned,
-                            optionsObj,
-                            data.correct_answer,
-                            data.attempts,
-                            data.next_task_id
-                        );
                     } else {
                         // Неправильный ответ - показываем сообщение об ошибке
                         showErrorMessage(data.attempts);
@@ -421,7 +438,10 @@
                 return false;
             };
             
-            taskForm.addEventListener('submit', handleSubmit);
+            taskForm.addEventListener('submit', function(e) {
+                e.preventDefault(); // Останавливаем отправку формы
+                handleSubmit(e);
+            });
         }
     }, false);
     
@@ -539,17 +559,22 @@
         const errorMessage = document.getElementById('errorMessage');
         const attemptCount = document.getElementById('attemptCount');
         
+        // Анимируем появление сообщения
+        errorMessage.style.opacity = '0';
+        errorMessage.classList.remove('hidden');
+        
         if (attempts > 0) {
             attemptCount.textContent = `Попытка ${attempts}`;
         } else {
             attemptCount.textContent = '';
         }
         
-        // Показываем сообщение
-        errorMessage.classList.remove('hidden');
-        
-        // Прокручиваем к сообщению
-        errorMessage.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        // Плавно показываем сообщение
+        setTimeout(() => {
+            errorMessage.style.opacity = '1';
+            // Прокручиваем к сообщению
+            errorMessage.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }, 10);
     }
 
     // AJAX запрос для ИИ-помощника
