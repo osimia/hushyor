@@ -601,8 +601,8 @@ def yandex_verification_view(request):
 
 
 def task_og_image_view(request, task_id):
-    """Генерирует Open Graph изображение для задачи"""
-    from django.http import HttpResponse, Http404, HttpResponseServerError
+    """Генерирует Open Graph изображение для задачи с поддержкой таджикского языка"""
+    from django.http import HttpResponse, Http404
     from .models import Task
     from .og_image_generator import generate_task_og_image
     import logging
@@ -621,23 +621,38 @@ def task_og_image_view(request, task_id):
         
         # Возвращаем PNG с правильными заголовками для кэширования
         response = HttpResponse(image_buffer.getvalue(), content_type='image/png')
-        response['Cache-Control'] = 'public, max-age=86400'  # Кэш на 24 часа
+        # Важно: no-cache для соцсетей, чтобы они не кэшировали пустые изображения
+        # После исправления можно изменить на: 'public, max-age=86400'
+        response['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+        response['Pragma'] = 'no-cache'
+        response['Expires'] = '0'
+        # Добавляем заголовки для отладки
+        response['X-Content-Type-Options'] = 'nosniff'
         return response
         
     except Exception as e:
         logger.error(f"Error generating OG image for task {task_id}: {str(e)}", exc_info=True)
         # Возвращаем простое изображение-заглушку в случае ошибки
-        from PIL import Image, ImageDraw
+        from PIL import Image, ImageDraw, ImageFont
         from io import BytesIO
+        import os
         
         # Создаем простую заглушку
         img = Image.new('RGB', (1200, 630), color='#4F6DF5')
         draw = ImageDraw.Draw(img)
         
-        # Простой текст без шрифтов
+        # Пытаемся загрузить шрифт для заглушки
         try:
-            draw.text((60, 300), "hushyor.com", fill='white')
-        except:
+            font_path = os.path.join(settings.BASE_DIR, 'core', 'fonts', 'DejaVuSans-Bold.ttf')
+            if os.path.exists(font_path):
+                font = ImageFont.truetype(font_path, 48)
+                draw.text((60, 280), "hushyor.com", fill='white', font=font)
+                draw.text((60, 340), "Ошибка загрузки изображения", fill='white', font=ImageFont.truetype(font_path, 32))
+            else:
+                draw.text((60, 300), "hushyor.com", fill='white')
+        except Exception as font_error:
+            logger.error(f"Error loading font for fallback image: {str(font_error)}")
+            # Последний fallback без шрифтов
             pass
         
         buffer = BytesIO()
@@ -645,5 +660,7 @@ def task_og_image_view(request, task_id):
         buffer.seek(0)
         
         response = HttpResponse(buffer.getvalue(), content_type='image/png')
-        response['Cache-Control'] = 'public, max-age=3600'  # Кэш на 1 час для заглушки
+        response['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+        response['Pragma'] = 'no-cache'
+        response['Expires'] = '0'
         return response

@@ -5,11 +5,17 @@
 from PIL import Image, ImageDraw, ImageFont
 import textwrap
 from io import BytesIO
+import os
+import logging
+from django.conf import settings
+from django.utils.html import strip_tags
+
+logger = logging.getLogger(__name__)
 
 
 def generate_task_og_image(task):
     """
-    Генерирует OG-изображение для задачи
+    Генерирует OG-изображение для задачи с поддержкой таджикского языка
     
     Args:
         task: объект Task из Django модели
@@ -38,45 +44,50 @@ def generate_task_og_image(task):
     img = img.convert('RGB')
     draw = ImageDraw.Draw(img)
     
-    # Пытаемся загрузить шрифты (приоритет - шрифты из проекта)
-    import os
-    from pathlib import Path
-    
-    # Определяем путь к шрифтам в core/fonts/
-    current_file = Path(__file__).resolve()
-    fonts_dir = current_file.parent / 'fonts'  # /home/.../hushyor/core/fonts/
-    
+    # Загружаем шрифты с поддержкой таджикского языка
     title_font = None
     question_font = None
     small_font = None
     
-    # Приоритет: шрифты из core/fonts/, затем системные
+    # Приоритет шрифтов: DejaVu Sans поддерживает таджикские символы (ҳ, ҷ, ӣ, ӯ, қ, ғ)
     font_paths = [
-        str(fonts_dir / 'DejaVuSans-Bold.ttf'),
-        str(fonts_dir / 'DejaVuSans.ttf'),
+        # Шрифты из core/fonts/ (используем settings.BASE_DIR)
+        os.path.join(settings.BASE_DIR, 'core', 'fonts', 'DejaVuSans-Bold.ttf'),
+        os.path.join(settings.BASE_DIR, 'core', 'fonts', 'DejaVuSans.ttf'),
+        # Системные шрифты DejaVu (Linux)
         '/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf',
         '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf',
-        '/System/Library/Fonts/Helvetica.ttc',  # macOS
-        'C:\\Windows\\Fonts\\arial.ttf',  # Windows
+        # macOS
+        '/System/Library/Fonts/Supplemental/DejaVuSans-Bold.ttf',
+        '/System/Library/Fonts/Supplemental/DejaVuSans.ttf',
+        # Windows
+        'C:\\Windows\\Fonts\\DejaVuSans-Bold.ttf',
+        'C:\\Windows\\Fonts\\DejaVuSans.ttf',
     ]
     
+    font_loaded = False
     for font_path in font_paths:
         try:
             if os.path.exists(font_path):
                 title_font = ImageFont.truetype(font_path, 48)
                 question_font = ImageFont.truetype(font_path, 36)
                 small_font = ImageFont.truetype(font_path, 28)
+                font_loaded = True
+                logger.info(f"Successfully loaded font from: {font_path}")
                 break
-        except Exception:
+        except Exception as e:
+            logger.warning(f"Failed to load font from {font_path}: {str(e)}")
             continue
     
-    # Если не нашли ни один шрифт - используем встроенный
-    if not title_font:
+    # Если не нашли ни один шрифт - используем встроенный (но он не поддерживает таджикский)
+    if not font_loaded:
+        logger.error("No suitable font found! Tajik characters may not display correctly.")
         try:
             title_font = ImageFont.load_default()
             question_font = ImageFont.load_default()
             small_font = ImageFont.load_default()
-        except Exception:
+        except Exception as e:
+            logger.error(f"Failed to load default font: {str(e)}")
             # Последний fallback - None (PIL будет использовать базовый)
             title_font = None
             question_font = None
@@ -91,23 +102,25 @@ def generate_task_og_image(task):
     
     # Рисуем предмет
     subject_text = f"Задание по {task.subject.title}"
-    draw.text((padding, padding + 70), subject_text, fill='rgba(255, 255, 255, 0.9)', font=small_font)
+    draw.text((padding, padding + 70), subject_text, fill=(255, 255, 255, 230), font=small_font)
     
-    # Рисуем текст вопроса (с переносом строк)
-    question_text = task.question
+    # Очищаем текст вопроса от HTML-тегов
+    question_text = strip_tags(task.question)
+    
     # Ограничиваем длину вопроса
-    if len(question_text) > 200:
-        question_text = question_text[:197] + "..."
+    if len(question_text) > 250:
+        question_text = question_text[:247] + "..."
     
-    # Разбиваем текст на строки
-    max_chars_per_line = 45
-    lines = textwrap.wrap(question_text, width=max_chars_per_line)
+    # Разбиваем текст на строки с учетом ширины (35-40 символов для таджикского текста)
+    max_chars_per_line = 38
+    lines = textwrap.wrap(question_text, width=max_chars_per_line, break_long_words=False, break_on_hyphens=False)
     
     # Ограничиваем количество строк
     max_lines = 8
     if len(lines) > max_lines:
         lines = lines[:max_lines]
-        lines[-1] = lines[-1][:40] + "..."
+        if len(lines[-1]) > 35:
+            lines[-1] = lines[-1][:32] + "..."
     
     # Рисуем вопрос
     y_offset = 200
@@ -119,7 +132,7 @@ def generate_task_og_image(task):
     # Рисуем футер внизу
     footer_text = "Проверь свои знания на hushyor.com"
     footer_y = height - padding - 30
-    draw.text((padding, footer_y), footer_text, fill='rgba(255, 255, 255, 0.8)', font=small_font)
+    draw.text((padding, footer_y), footer_text, fill=(255, 255, 255, 204), font=small_font)
     
     # Сохраняем в буфер
     buffer = BytesIO()
