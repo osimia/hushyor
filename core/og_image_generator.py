@@ -42,18 +42,18 @@ def generate_task_og_image(task):
     import os
     from pathlib import Path
     
-    # Определяем BASE_DIR (корень проекта)
+    # Определяем путь к шрифтам в core/fonts/
     current_file = Path(__file__).resolve()
-    base_dir = current_file.parent.parent  # /home/.../hushyor/
+    fonts_dir = current_file.parent / 'fonts'  # /home/.../hushyor/core/fonts/
     
     title_font = None
     question_font = None
     small_font = None
     
-    # Приоритет: шрифты из проекта, затем системные
+    # Приоритет: шрифты из core/fonts/, затем системные
     font_paths = [
-        str(base_dir / 'static/fonts/DejaVuSans-Bold.ttf'),
-        str(base_dir / 'static/fonts/DejaVuSans.ttf'),
+        str(fonts_dir / 'DejaVuSans-Bold.ttf'),
+        str(fonts_dir / 'DejaVuSans.ttf'),
         '/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf',
         '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf',
         '/System/Library/Fonts/Helvetica.ttc',  # macOS
