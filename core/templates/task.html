@@ -331,10 +331,6 @@
 </style>
 <script>
     // Автопрокрутка чата к последнему сообщению
-    // Предзагружаем звук успеха
-    const successSound = new Audio('{% static "sounds/success.wav" %}');
-    successSound.preload = 'auto';
-    
     document.addEventListener('DOMContentLoaded', function() {
         const chatMessages = document.getElementById('aiChatMessages');
         if (chatMessages) {
@@ -345,8 +341,8 @@
         const taskForm = document.getElementById('taskForm');
         
         if (taskForm) {
-            taskForm.addEventListener('submit', function(e) {
-                e.preventDefault(); // Останавливаем отправку формы
+            const handleSubmit = function(e) {
+                e.preventDefault(); // Останавливаем обычную отправку формы
                 
                 const formData = new FormData(taskForm);
                 const submitButton = taskForm.querySelector('button[type="submit"]');
@@ -377,12 +373,7 @@
                         'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
                     }
                 })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    return response.json();
-                })
+                .then(response => response.json())
                 .then(data => {
                     // Восстанавливаем кнопку
                     submitButton.disabled = false;
@@ -390,30 +381,15 @@
                     
                     if (data.is_correct) {
                         // Правильный ответ - показываем модальное окно
-                        const optionsObj = {{ task_options_json|safe }};
+                        const optionsObj = '{{ task_options_json|safe }}';
                         
-                        // Воспроизводим звук и показываем модальное окно
-                        successSound.currentTime = 0;
-                        successSound.volume = 0.5;
-                        successSound.play().then(() => {
-                            showSuccessModal(
-                                data.points_earned,
-                                optionsObj,
-                                data.correct_answer,
-                                data.attempts,
-                                data.next_task_id
-                            );
-                        }).catch(error => {
-                            console.log('Не удалось воспроизвести звук:', error);
-                            // Показываем модальное окно даже если звук не воспроизвелся
-                            showSuccessModal(
-                                data.points_earned,
-                                optionsObj,
-                                data.correct_answer,
-                                data.attempts,
-                                data.next_task_id
-                            );
-                        });
+                        showSuccessModal(
+                            data.points_earned,
+                            optionsObj,
+                            data.correct_answer,
+                            data.attempts,
+                            data.next_task_id
+                        );
                     } else {
                         // Неправильный ответ - показываем сообщение об ошибке
                         showErrorMessage(data.attempts);
@@ -424,26 +400,13 @@
                     // Восстанавливаем кнопку
                     submitButton.disabled = false;
                     submitButton.innerHTML = originalButtonText;
-                    
-                    // Показываем сообщение об ошибке
-                    const errorMessage = document.getElementById('errorMessage');
-                    const attemptCount = document.getElementById('attemptCount');
-                    
-                    errorMessage.querySelector('p.text-sm').textContent = 'Произошла ошибка при проверке ответа. Попробуйте ещё раз.';
-                    attemptCount.textContent = '';
-                    errorMessage.classList.remove('hidden');
+                    showErrorMessage(0);
                 });
-                
-                // Предотвращаем отправку формы
-                return false;
             };
             
-            taskForm.addEventListener('submit', function(e) {
-                e.preventDefault(); // Останавливаем отправку формы
-                handleSubmit(e);
-            });
+            taskForm.addEventListener('submit', handleSubmit);
         }
-    }, false);
+    });
     
     // Инициализируем звук при загрузке страницы
     const successSound = new Audio('{% static "sounds/success.wav" %}');
@@ -499,7 +462,6 @@
         // Воспроизводим звук
         playSuccessSound();
     }
-    }
     
     // Функция создания конфетти
     function createConfetti() {
@@ -518,16 +480,6 @@
             // Удаляем конфетти после анимации
             setTimeout(() => confetti.remove(), 5000);
         }
-    }
-    
-    // Функция воспроизведения звука победы
-    function playSuccessSound() {
-        // Воспроизводим звуковой файл
-        const audio = new Audio('{% static "sounds/success.wav" %}');
-        audio.volume = 0.5; // Громкость 50%
-        audio.play().catch(error => {
-            console.log('Не удалось воспроизвести звук:', error);
-        });
     }
     
     // Функция закрытия модального окна
@@ -654,7 +606,5 @@
             chatMessages.scrollTop = chatMessages.scrollHeight;
         });
     }
-    
-    }); // Закрываем DOMContentLoaded
 </script>
 {% endblock %}
