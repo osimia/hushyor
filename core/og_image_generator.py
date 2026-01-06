@@ -66,13 +66,16 @@ def generate_task_og_image(task):
     ]
     
     font_loaded = False
+    loaded_font_path = None
     for font_path in font_paths:
         try:
             if os.path.exists(font_path):
-                title_font = ImageFont.truetype(font_path, 48)
-                question_font = ImageFont.truetype(font_path, 36)
-                small_font = ImageFont.truetype(font_path, 28)
+                # Увеличены размеры шрифтов для лучшей читаемости
+                title_font = ImageFont.truetype(font_path, 64)  # было 48
+                question_font = ImageFont.truetype(font_path, 42)  # было 36
+                small_font = ImageFont.truetype(font_path, 32)  # было 28
                 font_loaded = True
+                loaded_font_path = font_path  # Сохраняем путь для использования позже
                 logger.info(f"Successfully loaded font from: {font_path}")
                 break
         except Exception as e:
@@ -107,27 +110,69 @@ def generate_task_og_image(task):
     # Очищаем текст вопроса от HTML-тегов
     question_text = strip_tags(task.question)
     
-    # Ограничиваем длину вопроса
-    if len(question_text) > 250:
-        question_text = question_text[:247] + "..."
+    # Ограничиваем длину вопроса (меньше, чтобы оставить место для вариантов)
+    if len(question_text) > 120:
+        question_text = question_text[:117] + "..."
     
-    # Разбиваем текст на строки с учетом ширины (35-40 символов для таджикского текста)
-    max_chars_per_line = 38
+    # Разбиваем текст на строки с учетом ширины
+    max_chars_per_line = 40
     lines = textwrap.wrap(question_text, width=max_chars_per_line, break_long_words=False, break_on_hyphens=False)
     
-    # Ограничиваем количество строк
-    max_lines = 8
+    # Ограничиваем количество строк вопроса
+    max_lines = 3
     if len(lines) > max_lines:
         lines = lines[:max_lines]
         if len(lines[-1]) > 35:
             lines[-1] = lines[-1][:32] + "..."
     
     # Рисуем вопрос
-    y_offset = 200
-    line_height = 50
+    y_offset = 180
+    line_height = 55
     for line in lines:
         draw.text((padding, y_offset), line, fill='white', font=question_font)
         y_offset += line_height
+    
+    # Добавляем отступ после вопроса
+    y_offset += 20
+    
+    # Рисуем варианты ответов (если есть)
+    if task.options:
+        import json
+        try:
+            # Парсим варианты ответов
+            if isinstance(task.options, str):
+                options = json.loads(task.options)
+            else:
+                options = task.options
+            
+            # Создаем шрифт для вариантов
+            option_font = ImageFont.truetype(loaded_font_path, 32) if font_loaded and loaded_font_path else small_font
+            
+            # Рисуем каждый вариант с фоном
+            for key in sorted(options.keys())[:4]:  # Максимум 4 варианта
+                value = strip_tags(str(options[key]))
+                
+                # Ограничиваем длину варианта
+                if len(value) > 50:
+                    value = value[:47] + "..."
+                
+                # Рисуем полупрозрачный фон для варианта (как на странице)
+                box_height = 55
+                box_width = width - (padding * 2)
+                # Создаем округленный прямоугольник с полупрозрачным фоном
+                draw.rounded_rectangle(
+                    [(padding, y_offset - 10), (padding + box_width, y_offset + box_height - 10)],
+                    radius=12,
+                    fill=(255, 255, 255, 25)  # Полупрозрачный белый
+                )
+                
+                # Рисуем текст варианта
+                option_text = f"{key}.  {value}"
+                draw.text((padding + 20, y_offset), option_text, fill=(255, 255, 255, 250), font=option_font)
+                y_offset += box_height + 8  # Отступ между вариантами
+                
+        except Exception as e:
+            logger.warning(f"Failed to parse options: {str(e)}")
     
     # Рисуем футер внизу
     footer_text = "Проверь свои знания на hushyor.com"
