@@ -26,22 +26,10 @@ def generate_task_og_image(task):
     # Размеры для Open Graph (рекомендация Facebook)
     width, height = 1200, 630
     
-    # Создаем изображение с градиентным фоном
-    img = Image.new('RGB', (width, height), color='#4F6DF5')
-    draw = ImageDraw.Draw(img)
-    
-    # Рисуем градиент (от синего к фиолетовому)
-    for y in range(height):
-        ratio = y / height
-        r = int(79 + (138 - 79) * ratio)
-        g = int(109 + (43 - 109) * ratio)
-        b = int(245 + (226 - 245) * ratio)
-        draw.rectangle([(0, y), (width, y + 1)], fill=(r, g, b))
-    
-    # Добавляем полупрозрачный overlay для лучшей читаемости
-    overlay = Image.new('RGBA', (width, height), (0, 0, 0, 50))
-    img.paste(overlay, (0, 0), overlay)
-    img = img.convert('RGB')
+    # Создаем изображение с светлым фоном как на сайте
+    # background-color: hsl(210, 17%, 98%) - очень светлый серо-голубой
+    # RGB: (247, 248, 250)
+    img = Image.new('RGB', (width, height), color=(247, 248, 250))
     draw = ImageDraw.Draw(img)
     
     # Загружаем шрифты с поддержкой таджикского языка
@@ -99,13 +87,9 @@ def generate_task_og_image(task):
     # Отступы
     padding = 60
     
-    # Рисуем логотип/название сайта вверху
-    site_name = "hushyor"
-    draw.text((padding, padding), site_name, fill='white', font=title_font)
-    
-    # Рисуем предмет
+    # Рисуем предмет вверху (темный текст на светлом фоне)
     subject_text = f"Задание по {task.subject.title}"
-    draw.text((padding, padding + 70), subject_text, fill=(255, 255, 255, 230), font=small_font)
+    draw.text((padding, padding), subject_text, fill=(100, 100, 120), font=small_font)
     
     # Очищаем текст вопроса от HTML-тегов
     question_text = strip_tags(task.question)
@@ -125,11 +109,11 @@ def generate_task_og_image(task):
         if len(lines[-1]) > 35:
             lines[-1] = lines[-1][:32] + "..."
     
-    # Рисуем вопрос
+    # Рисуем вопрос (темный текст на светлом фоне)
     y_offset = 180
     line_height = 55
     for line in lines:
-        draw.text((padding, y_offset), line, fill='white', font=question_font)
+        draw.text((padding, y_offset), line, fill=(40, 45, 60), font=question_font)
         y_offset += line_height
     
     # Добавляем отступ после вопроса
@@ -156,28 +140,31 @@ def generate_task_og_image(task):
                 if len(value) > 50:
                     value = value[:47] + "..."
                 
-                # Рисуем полупрозрачный фон для варианта (как на странице)
+                # Рисуем фон для варианта (светлый блок на градиентном фоне)
                 box_height = 55
                 box_width = width - (padding * 2)
-                # Создаем округленный прямоугольник с полупрозрачным фоном
+                
+                # Создаем округленный прямоугольник с белым фоном как на сайте
                 draw.rounded_rectangle(
                     [(padding, y_offset - 10), (padding + box_width, y_offset + box_height - 10)],
                     radius=12,
-                    fill=(255, 255, 255, 25)  # Полупрозрачный белый
+                    fill=(255, 255, 255),  # Белый фон как на сайте
+                    outline=(220, 225, 230),  # Светло-серая обводка
+                    width=1
                 )
                 
-                # Рисуем текст варианта
+                # Рисуем текст варианта (темный текст)
                 option_text = f"{key}.  {value}"
-                draw.text((padding + 20, y_offset), option_text, fill=(255, 255, 255, 250), font=option_font)
+                draw.text((padding + 20, y_offset), option_text, fill=(40, 45, 60), font=option_font)
                 y_offset += box_height + 8  # Отступ между вариантами
                 
         except Exception as e:
             logger.warning(f"Failed to parse options: {str(e)}")
     
-    # Рисуем футер внизу
+    # Рисуем футер внизу (темный текст на светлом фоне)
     footer_text = "Проверь свои знания на hushyor.com"
     footer_y = height - padding - 30
-    draw.text((padding, footer_y), footer_text, fill=(255, 255, 255, 204), font=small_font)
+    draw.text((padding, footer_y), footer_text, fill=(120, 125, 140), font=small_font)
     
     # Сохраняем в буфер
     buffer = BytesIO()
