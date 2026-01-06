@@ -151,11 +151,7 @@ def task_view(request, task_id):
     
     if request.method == 'POST':
         # Проверяем, это AJAX запрос или нет
-        is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest' or request.headers.get('Accept', '').startswith('application/json')
-        
-        # Если это не AJAX-запрос, возвращаем ответ как JSON
-        if not is_ajax:
-            return JsonResponse({'error': 'Только AJAX-запросы разрешены'}, status=400)
+        is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
         
         if 'theory' in request.POST:
             # Запрос теории
@@ -179,13 +175,6 @@ def task_view(request, task_id):
             answer = request.POST.get('answer', '').strip()
             is_correct = (answer == task.correct_answer)
             result = is_correct
-            
-            # Если неправильный ответ, возвращаем сообщение
-            if not is_correct and is_ajax:
-                return JsonResponse({
-                    'is_correct': False,
-                    'attempts': attempt_info.attempts + 1 if attempt_info else 1
-                })
             
             # Обработка попыток и начисление очков для авторизованных пользователей
             if request.user.is_authenticated and attempt_info:
