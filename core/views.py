@@ -598,3 +598,23 @@ def yandex_verification_view(request):
     """Верификация для Yandex Webmaster"""
     from django.shortcuts import render
     return render(request, 'yandex_f58006ecd2f5e538.html')
+
+
+def task_og_image_view(request, task_id):
+    """Генерирует Open Graph изображение для задачи"""
+    from django.http import HttpResponse, Http404
+    from .models import Task
+    from .og_image_generator import generate_task_og_image
+    
+    try:
+        task = Task.objects.select_related('subject').get(id=task_id)
+    except Task.DoesNotExist:
+        raise Http404("Task not found")
+    
+    # Генерируем изображение
+    image_buffer = generate_task_og_image(task)
+    
+    # Возвращаем PNG с правильными заголовками для кэширования
+    response = HttpResponse(image_buffer.getvalue(), content_type='image/png')
+    response['Cache-Control'] = 'public, max-age=86400'  # Кэш на 24 часа
+    return response

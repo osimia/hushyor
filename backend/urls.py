@@ -36,6 +36,7 @@ urlpatterns = [
     path('subject/<int:subject_id>/', views.subject_view, name='subject'),
     path('topic/<int:topic_id>/', views.topic_view, name='topic'),
     path('task/<int:task_id>/', views.task_view, name='task'),
+    path('task/<int:task_id>/og-image.png', views.task_og_image_view, name='task_og_image'),
     path('leaderboard/', views.leaderboard_view, name='leaderboard'),
     path('profile/', views.profile_view, name='profile'),
     path('login/', views.login_view, name='login'),
