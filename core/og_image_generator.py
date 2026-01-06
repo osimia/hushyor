@@ -37,20 +37,20 @@ def generate_task_og_image(task):
     question_font = None
     small_font = None
     
-    # Приоритет шрифтов: DejaVu Sans поддерживает таджикские символы (ҳ, ҷ, ӣ, ӯ, қ, ғ)
+    # Приоритет шрифтов: используем обычный DejaVu Sans (не Bold) для более легкого вида
     font_paths = [
-        # Шрифты из core/fonts/ (используем settings.BASE_DIR)
-        os.path.join(settings.BASE_DIR, 'core', 'fonts', 'DejaVuSans-Bold.ttf'),
+        # Шрифты из core/fonts/ - приоритет обычному шрифту, не жирному
         os.path.join(settings.BASE_DIR, 'core', 'fonts', 'DejaVuSans.ttf'),
+        os.path.join(settings.BASE_DIR, 'core', 'fonts', 'DejaVuSans-Bold.ttf'),
         # Системные шрифты DejaVu (Linux)
-        '/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf',
         '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf',
+        '/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf',
         # macOS
-        '/System/Library/Fonts/Supplemental/DejaVuSans-Bold.ttf',
         '/System/Library/Fonts/Supplemental/DejaVuSans.ttf',
+        '/System/Library/Fonts/Supplemental/DejaVuSans-Bold.ttf',
         # Windows
-        'C:\\Windows\\Fonts\\DejaVuSans-Bold.ttf',
         'C:\\Windows\\Fonts\\DejaVuSans.ttf',
+        'C:\\Windows\\Fonts\\DejaVuSans-Bold.ttf',
     ]
     
     font_loaded = False
@@ -58,10 +58,10 @@ def generate_task_og_image(task):
     for font_path in font_paths:
         try:
             if os.path.exists(font_path):
-                # Увеличены размеры шрифтов для лучшей читаемости
-                title_font = ImageFont.truetype(font_path, 64)  # было 48
-                question_font = ImageFont.truetype(font_path, 42)  # было 36
-                small_font = ImageFont.truetype(font_path, 32)  # было 28
+                # Используем более мелкие размеры для элегантного вида
+                title_font = ImageFont.truetype(font_path, 36)  # Уменьшен
+                question_font = ImageFont.truetype(font_path, 32)  # Уменьшен
+                small_font = ImageFont.truetype(font_path, 24)  # Уменьшен
                 font_loaded = True
                 loaded_font_path = font_path  # Сохраняем путь для использования позже
                 logger.info(f"Successfully loaded font from: {font_path}")
@@ -129,8 +129,8 @@ def generate_task_og_image(task):
             else:
                 options = task.options
             
-            # Создаем шрифт для вариантов
-            option_font = ImageFont.truetype(loaded_font_path, 32) if font_loaded and loaded_font_path else small_font
+            # Создаем шрифт для вариантов (легкий, не жирный)
+            option_font = ImageFont.truetype(loaded_font_path, 26) if font_loaded and loaded_font_path else small_font
             
             # Рисуем каждый вариант с фоном
             for key in sorted(options.keys())[:4]:  # Максимум 4 варианта
