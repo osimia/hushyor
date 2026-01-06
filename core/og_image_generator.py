@@ -38,12 +38,22 @@ def generate_task_og_image(task):
     img = img.convert('RGB')
     draw = ImageDraw.Draw(img)
     
-    # Пытаемся загрузить шрифты (пробуем несколько путей)
+    # Пытаемся загрузить шрифты (приоритет - шрифты из проекта)
+    import os
+    from pathlib import Path
+    
+    # Определяем BASE_DIR (корень проекта)
+    current_file = Path(__file__).resolve()
+    base_dir = current_file.parent.parent  # /home/.../hushyor/
+    
     title_font = None
     question_font = None
     small_font = None
     
+    # Приоритет: шрифты из проекта, затем системные
     font_paths = [
+        str(base_dir / 'static/fonts/DejaVuSans-Bold.ttf'),
+        str(base_dir / 'static/fonts/DejaVuSans.ttf'),
         '/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf',
         '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf',
         '/System/Library/Fonts/Helvetica.ttc',  # macOS
@@ -52,22 +62,21 @@ def generate_task_og_image(task):
     
     for font_path in font_paths:
         try:
-            title_font = ImageFont.truetype(font_path, 48)
-            question_font = ImageFont.truetype(font_path, 36)
-            small_font = ImageFont.truetype(font_path, 28)
-            break
-        except:
+            if os.path.exists(font_path):
+                title_font = ImageFont.truetype(font_path, 48)
+                question_font = ImageFont.truetype(font_path, 36)
+                small_font = ImageFont.truetype(font_path, 28)
+                break
+        except Exception:
             continue
     
     # Если не нашли ни один шрифт - используем встроенный
     if not title_font:
         try:
-            # Пытаемся использовать PIL's default font с размером
-            from PIL import ImageFont
             title_font = ImageFont.load_default()
             question_font = ImageFont.load_default()
             small_font = ImageFont.load_default()
-        except:
+        except Exception:
             # Последний fallback - None (PIL будет использовать базовый)
             title_font = None
             question_font = None
