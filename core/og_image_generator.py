@@ -68,10 +68,10 @@ def generate_task_og_image(task):
     for font_path in font_paths:
         try:
             if os.path.exists(font_path):
-                # Используем более мелкие размеры для элегантного вида
-                title_font = ImageFont.truetype(font_path, 36)  # Уменьшен
-                question_font = ImageFont.truetype(font_path, 32)  # Уменьшен
-                small_font = ImageFont.truetype(font_path, 24)  # Уменьшен
+                # Используем тонкий шрифт и меньшие размеры для элегантности
+                title_font = ImageFont.truetype(font_path, 28)  # Уменьшен
+                question_font = ImageFont.truetype(font_path, 26)  # Уменьшен
+                small_font = ImageFont.truetype(font_path, 22)  # Уменьшен
                 font_loaded = True
                 loaded_font_path = font_path  # Сохраняем путь для использования позже
                 logger.info(f"Successfully loaded font from: {font_path}")
@@ -135,8 +135,8 @@ def generate_task_og_image(task):
             else:
                 options = task.options
             
-            # Создаем шрифт для вариантов (легкий, не жирный)
-            option_font = ImageFont.truetype(loaded_font_path, 26) if font_loaded and loaded_font_path else small_font
+            # Создаем очень тонкий шрифт для вариантов
+            option_font = ImageFont.truetype(loaded_font_path, 24) if font_loaded and loaded_font_path else small_font
             
             # Рисуем каждый вариант с фоном
             for key in sorted(options.keys())[:4]:  # Максимум 4 варианта
@@ -146,23 +146,23 @@ def generate_task_og_image(task):
                 if len(value) > 50:
                     value = value[:47] + "..."
                 
-                # Создаем закругленные блоки как на картинке
-                box_height = 50
+                # Создаем более тонкие закругленные блоки
+                box_height = 42  # Уменьшена высота
                 box_width = width - (padding * 2)
                 
-                # Синий цвет для блоков (как на картинке, но синий вместо зеленого)
-                blue_color = (79, 109, 245)  # Основной синий цвет сайта
+                # Более светлый синий цвет для блоков
+                blue_color = (103, 128, 245)  # Чуть светлее для элегантности
                 
                 # Рисуем закругленный блок с синим фоном
                 draw.rounded_rectangle(
-                    [(padding, y_offset - 8), (padding + box_width, y_offset + box_height - 8)],
-                    radius=25,  # Большой радиус для сильного закругления
+                    [(padding, y_offset - 6), (padding + box_width, y_offset + box_height - 6)],
+                    radius=21,  # Чуть меньший радиус для пропорциональности
                     fill=blue_color
                 )
                 
                 # Рисуем текст варианта белым цветом на синем фоне
                 option_text = f"{key}. {value}"
-                draw.text((padding + 20, y_offset + 2), option_text, fill=(255, 255, 255), font=option_font)
+                draw.text((padding + 16, y_offset), option_text, fill=(255, 255, 255, 240), font=option_font)
                 y_offset += box_height + 15  # Отступ между вариантами
                 
         except Exception as e:
