@@ -97,14 +97,6 @@ def generate_task_og_image(task):
     # Отступы
     padding = 60
     
-    # Добавляем декоративный акцентный элемент слева от заголовка
-    accent_color = (79, 109, 245)  # Синий цвет сайта
-    draw.rounded_rectangle([(padding - 10, padding - 5), (padding - 2, padding + 30)], radius=2, fill=accent_color)
-    
-    # Рисуем предмет вверху с иконкой
-    subject_text = f"📚 {task.subject.title}"
-    draw.text((padding + 5, padding), subject_text, fill=(80, 85, 100), font=small_font)
-    
     # Очищаем текст вопроса от HTML-тегов
     question_text = strip_tags(task.question)
     
@@ -192,10 +184,7 @@ def generate_task_og_image(task):
         except Exception as e:
             logger.warning(f"Failed to parse options: {str(e)}")
     
-    # Рисуем футер внизу (темный текст на светлом фоне)
-    footer_text = "Проверь свои знания на hushyor.com"
-    footer_y = height - padding - 30
-    draw.text((padding, footer_y), footer_text, fill=(120, 125, 140), font=small_font)
+    # Футер убран - не показываем текст внизу
     
     # Сохраняем в буфер
     buffer = BytesIO()
