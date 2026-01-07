@@ -90,7 +90,7 @@
 
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {% for subject in subjects %}
-            <a href="/subject/{{ subject.id }}/" class="group relative bg-card rounded-2xl p-6 shadow-card hover:shadow-glow transition-all duration-300 hover:-translate-y-2 cursor-pointer opacity-0 animate-slide-up border border-border/50 block focus:outline-none focus:ring-2 focus:ring-primary/40" style="animation-delay: {{ forloop.counter0 }}00ms;">
+            <a href="/subject/{{ subject.id }}/" class="group relative bg-card rounded-2xl p-6 shadow-card hover:shadow-glow transition-all duration-300 hover:-translate-y-2 cursor-pointer border border-border/50 block focus:outline-none focus:ring-2 focus:ring-primary/40">
                 <div class="absolute inset-x-0 top-0 h-1 rounded-t-2xl" style="background-image: linear-gradient(90deg, {{ subject.color }}, {{ subject.color }}88);"></div>
                 
                 <div class="flex items-start justify-between mb-4">
@@ -104,8 +104,8 @@
 
                 <div class="mb-4">
                     <div class="flex justify-between items-center mb-1">
-                        <span class="text-xs text-muted-foreground">Прогресс</span>
-                        <span class="text-xs font-semibold" style="color: {{ subject.color }};">{{ subject.percentage }}%</span>
+                        <span class="text-xs text-foreground font-medium">Прогресс</span>
+                        <span class="text-xs font-bold text-foreground">{{ subject.percentage }}%</span>
                     </div>
                     <div class="h-2 bg-muted rounded-full overflow-hidden">
                         <div class="h-full rounded-full transition-all duration-500" style="width: {{ subject.percentage }}%; background-color: {{ subject.color }};"></div>
@@ -113,8 +113,8 @@
                 </div>
 
                 <div class="w-full flex items-center justify-between px-4 py-3 rounded-lg hover:bg-muted transition-colors tap-target">
-                    <span class="font-medium text-sm">{% if user.is_authenticated %}Продолжить{% else %}Попробовать{% endif %}</span>
-                    <svg class="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg>
+                    <span class="font-semibold text-sm text-foreground">{% if user.is_authenticated %}Продолжить{% else %}Попробовать{% endif %}</span>
+                    <svg class="w-4 h-4 transition-transform group-hover:translate-x-1 text-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg>
                 </div>
             </a>
             {% empty %}
