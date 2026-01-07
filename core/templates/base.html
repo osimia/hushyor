@@ -2,23 +2,19 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-3NH853BCE5"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
+    <!-- Yandex.Metrika counter -->
+    <script type="text/javascript">
+        (function(m,e,t,r,i,k,a){
+            m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+            m[i].l=1*new Date();
+            for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+            k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
+        })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=106162986', 'ym');
 
-      gtag('config', 'G-3NH853BCE5');
+        ym(106162986, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", accurateTrackBounce:true, trackLinks:true});
     </script>
-    
-    <!-- Google Tag Manager -->
-    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-    })(window,document,'script','dataLayer','GTM-MB2GWHKD');</script>
-    <!-- End Google Tag Manager -->
+    <noscript><div><img src="https://mc.yandex.ru/watch/106162986" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+    <!-- /Yandex.Metrika counter -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}hushyor - Подготовка к ММТ онлайн | Таджикистан{% endblock %}</title>
@@ -60,8 +56,13 @@
     <link rel="apple-touch-icon" sizes="180x180" href="{% static 'favicon/apple-touch-icon.png' %}">
     <link rel="manifest" href="{% static 'favicon/site.webmanifest' %}">
     
+    <!-- Preload Critical Resources -->
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap"></noscript>
+    <link rel="preload" href="{% static 'images/logo-square.png' %}" as="image">
+    
     <!-- Structured Data / JSON-LD -->
-    <script type="application/ld+json">
+    <script type="application/ld+json" defer>
     {
       "@context": "https://schema.org",
       "@type": "EducationalOrganization",
@@ -86,7 +87,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <script>
         tailwind.config = {
             theme: {
@@ -116,6 +116,16 @@
         }
     </script>
     <style>
+        @font-face {
+            font-family: 'Inter';
+            font-display: swap;
+            src: local('Inter');
+        }
+        @font-face {
+            font-family: 'Nunito';
+            font-display: swap;
+            src: local('Nunito');
+        }
         body {
             font-family: 'Inter', system-ui, sans-serif;
             background-color: hsl(210, 17%, 98%);
@@ -162,16 +172,37 @@
         .animate-slide-up {
             animation: slide-up 0.6s ease-out forwards;
         }
+        /* Mobile-First: Sticky CTA Button */
+        .sticky-cta {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 40;
+            padding: 1rem;
+            background: linear-gradient(to top, rgba(255,255,255,0.98) 0%, rgba(255,255,255,0.95) 100%);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
+        }
+        @media (min-width: 768px) {
+            .sticky-cta {
+                display: none;
+            }
+        }
+        /* Improved tap targets for mobile */
+        .tap-target {
+            min-width: 44px;
+            min-height: 44px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
     </style>
     {% block head %}{% endblock %}
 </head>
 <body class="min-h-screen overflow-x-hidden">
-    <!-- Google Tag Manager (noscript) -->
-    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MB2GWHKD"
-    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-    <!-- End Google Tag Manager (noscript) -->
     <!-- Navbar -->
-    <nav class="sticky top-0 z-50 bg-white/95 backdrop-blur-lg border-b border-gray-200 shadow-sm">
+    <nav class="sticky top-0 z-50 bg-white/95 backdrop-blur-lg border-b border-gray-200 shadow-sm" role="navigation" aria-label="Main navigation">
         <div class="container mx-auto px-6 md:px-8 lg:px-12">
             <div class="flex items-center justify-between h-16">
                 <!-- Logo -->
@@ -200,9 +231,12 @@
                         <span class="hidden md:inline">Выйти</span>
                     </a>
                     {% else %}
-                    <a href="/login/" class="px-5 py-2.5 bg-gradient-to-r from-primary to-secondary text-white rounded-lg font-semibold text-sm hover:shadow-lg hover:scale-105 transition-all duration-200 flex items-center gap-2">
+                    <a href="/login/" class="px-4 py-2 rounded-lg font-medium text-sm text-gray-700 hover:bg-gray-100 hover:text-primary transition-all duration-200 flex items-center gap-2">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path></svg>
-                        Войти
+                        <span class="hidden md:inline">Войти</span>
+                    </a>
+                    <a href="/register/" class="hidden md:inline-flex px-5 py-2.5 bg-accent hover:bg-accent/90 text-white rounded-lg font-semibold text-sm hover:shadow-lg hover:scale-105 transition-all duration-200 tap-target">
+                        Регистрация
                     </a>
                     {% endif %}
                 </div>
@@ -210,6 +244,8 @@
         </div>
     </nav>
 
-    {% block content %}{% endblock %}
+    <main id="main-content" role="main">
+        {% block content %}{% endblock %}
+    </main>
 </body>
 </html>

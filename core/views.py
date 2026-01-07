@@ -379,11 +379,22 @@ def leaderboard_view(request):
 def profile_view(request):
     from .models import UserProfile
     user_profile = None
+    
     if request.user.is_authenticated:
         try:
             user_profile = UserProfile.objects.select_related('user').get(user=request.user)
         except UserProfile.DoesNotExist:
             user_profile = None
+        
+        # Обработка изменения имени
+        if request.method == 'POST' and 'first_name' in request.POST:
+            first_name = request.POST.get('first_name', '').strip()
+            if first_name:
+                request.user.first_name = first_name
+                request.user.save()
+                messages.success(request, 'Имя успешно изменено!')
+                return redirect('/profile/')
+    
     return render(request, 'profile.html', {'user_profile': user_profile})
 
 def login_view(request):
@@ -447,6 +458,10 @@ def register_view(request):
     else:
         form = CustomUserCreationForm()
     return render(request, 'register.html', {'form': form})
+
+def demo_view(request):
+    """Демо-страница для пробного тестирования без регистрации"""
+    return render(request, 'demo.html')
 
 def logout_view(request):
     logout(request)

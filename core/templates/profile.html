@@ -35,15 +35,32 @@
                         {{ user_profile.user.first_name|first|upper|default:user_profile.user.username|first|upper }}
                     </div>
                 </div>
-                <h2 class="font-heading font-bold text-2xl text-white mb-2">
-                    {% if user_profile.user.first_name or user_profile.user.last_name %}
-                        {{ user_profile.user.first_name }} {{ user_profile.user.last_name }}
-                    {% else %}
-                        {{ user_profile.user.username }}
-                    {% endif %}
-                </h2>
+                <div id="name-display">
+                    <h2 class="font-heading font-bold text-2xl text-white mb-2">
+                        {% if user_profile.user.first_name or user_profile.user.last_name %}
+                            {{ user_profile.user.first_name }} {{ user_profile.user.last_name }}
+                        {% else %}
+                            {{ user_profile.user.username }}
+                        {% endif %}
+                    </h2>
+                    <button onclick="showEditName()" class="text-white/80 hover:text-white text-sm underline transition-colors">
+                        Изменить имя
+                    </button>
+                </div>
+                <form id="name-edit-form" method="post" class="hidden space-y-3">
+                    {% csrf_token %}
+                    <input type="text" name="first_name" value="{{ user_profile.user.first_name }}" placeholder="Введите имя" class="w-full max-w-xs mx-auto px-4 py-2 rounded-lg border-2 border-white/30 bg-white/10 text-white placeholder-white/60 focus:border-white focus:outline-none" required>
+                    <div class="flex gap-2 justify-center">
+                        <button type="submit" class="px-4 py-2 bg-white text-primary rounded-lg font-semibold hover:bg-white/90 transition-colors">
+                            Сохранить
+                        </button>
+                        <button type="button" onclick="hideEditName()" class="px-4 py-2 bg-white/20 text-white rounded-lg font-semibold hover:bg-white/30 transition-colors">
+                            Отмена
+                        </button>
+                    </div>
+                </form>
                 {% if user_profile.phone %}
-                <p class="text-white/80">{{ user_profile.phone }}</p>
+                <p class="text-white/80 mt-2">{{ user_profile.phone }}</p>
                 {% endif %}
             </div>
 
@@ -119,6 +136,7 @@
 </section>
 
 <script>
+  // Share functionality
   (function () {
     const btn = document.getElementById('shareSiteBtn');
     const statusEl = document.getElementById('shareSiteStatus');
@@ -157,6 +175,17 @@
       }
     });
   })();
+
+  // Name edit functionality
+  function showEditName() {
+    document.getElementById('name-display').classList.add('hidden');
+    document.getElementById('name-edit-form').classList.remove('hidden');
+  }
+
+  function hideEditName() {
+    document.getElementById('name-display').classList.remove('hidden');
+    document.getElementById('name-edit-form').classList.add('hidden');
+  }
 </script>
 
 {% endblock %}

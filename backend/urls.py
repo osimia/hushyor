@@ -39,6 +39,7 @@ urlpatterns = [
     
     # ==================== HTML Views (существующий сайт) ====================
     path('', views.main_view, name='main'),
+    path('demo/', views.demo_view, name='demo'),
     path('subject/<int:subject_id>/', views.subject_view, name='subject'),
     path('topic/<int:topic_id>/', views.topic_view, name='topic'),
     path('task/<int:task_id>/', views.task_view, name='task'),

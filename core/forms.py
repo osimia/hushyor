@@ -5,62 +5,40 @@ from django.core.exceptions import ValidationError
 import re
 
 
-class CustomUserCreationForm(UserCreationForm):
-    """Кастомная форма регистрации с поддержкой кириллицы"""
-    
-    full_name = forms.CharField(
-        max_length=150,
-        required=True,
-        label='ФИО',
-        widget=forms.TextInput(attrs={
-            'class': 'w-full px-4 py-3 rounded-xl border border-border bg-background text-foreground',
-            'placeholder': 'Введите ваше имя'
-        })
-    )
+class CustomUserCreationForm(forms.Form):
+    """Упрощенная форма регистрации - только телефон и пароль"""
     
     phone = forms.CharField(
         max_length=20,
         required=True,
         label='Номер телефона',
         widget=forms.TextInput(attrs={
-            'class': 'w-full px-4 py-3 rounded-xl border border-border bg-background text-foreground',
-            'placeholder': '+998'
+            'class': 'w-full pl-28 pr-4 py-3.5 bg-muted border-2 border-transparent rounded-xl text-foreground placeholder-muted-foreground focus:border-primary focus:outline-none transition-colors text-lg',
+            'placeholder': '90 123 45 67',
+            'inputmode': 'tel',
+            'autocomplete': 'tel',
+            'autofocus': True,
+            'id': 'phone'
         })
     )
     
     password1 = forms.CharField(
         label='Пароль',
         widget=forms.PasswordInput(attrs={
-            'class': 'w-full px-4 py-3 rounded-xl border border-border bg-background text-foreground',
-            'placeholder': '••••••••'
+            'class': 'w-full pl-12 pr-12 py-3.5 bg-muted border-2 border-transparent rounded-xl text-foreground placeholder-muted-foreground focus:border-primary focus:outline-none transition-colors text-lg',
+            'placeholder': 'Минимум 8 символов',
+            'id': 'password1'
         })
     )
     
-    password2 = forms.CharField(
-        label='Подтверждение пароля',
-        widget=forms.PasswordInput(attrs={
-            'class': 'w-full px-4 py-3 rounded-xl border border-border bg-background text-foreground',
-            'placeholder': '••••••••'
-        })
-    )
-    
-    class Meta:
-        model = User
-        fields = ('full_name', 'phone', 'password1', 'password2')
-    
-    def clean_full_name(self):
-        """Валидация ФИО - разрешаем кириллицу, латиницу, пробелы, дефисы"""
-        full_name = self.cleaned_data.get('full_name')
+    def clean_password1(self):
+        """Валидация пароля"""
+        password = self.cleaned_data.get('password1')
         
-        # Проверяем, что имя содержит только разрешенные символы
-        if not re.match(r'^[а-яА-ЯёЁa-zA-Z\s\-]+$', full_name):
-            raise ValidationError('ФИО может содержать только буквы, пробелы и дефисы')
+        if len(password) < 8:
+            raise ValidationError('Пароль должен содержать минимум 8 символов')
         
-        # Проверяем минимальную длину
-        if len(full_name.strip()) < 2:
-            raise ValidationError('ФИО должно содержать минимум 2 символа')
-        
-        return full_name.strip()
+        return password
     
     def clean_phone(self):
         """Валидация номера телефона"""
@@ -86,26 +64,31 @@ class CustomUserCreationForm(UserCreationForm):
     
     def save(self, commit=True):
         """Создаем пользователя с username из телефона"""
-        user = super().save(commit=False)
+        from .models import UserProfile
+        
+        phone = self.cleaned_data['phone']
+        password = self.cleaned_data['password1']
         
         # Используем телефон как username (уникальный идентификатор)
-        phone = self.cleaned_data['phone']
-        user.username = phone.replace('+', '').replace(' ', '')
+        username = phone.replace('+', '').replace(' ', '')
         
-        # Сохраняем ФИО в first_name и last_name
-        full_name = self.cleaned_data['full_name']
-        name_parts = full_name.split(maxsplit=1)
-        user.first_name = name_parts[0] if len(name_parts) > 0 else ''
-        user.last_name = name_parts[1] if len(name_parts) > 1 else ''
+        # Генерируем уникальное имя пользователя
+        user_count = User.objects.count() + 1
+        display_name = f'user_{user_count}'
+        
+        # Создаем пользователя
+        user = User.objects.create_user(
+            username=username,
+            password=password,
+            first_name=display_name,
+            last_name=''
+        )
         
         if commit:
-            user.save()
-            
             # Создаем профиль пользователя
-            from .models import UserProfile
             UserProfile.objects.create(
                 user=user,
-                phone=self.cleaned_data['phone']
+                phone=phone
             )
         
         return user
@@ -119,16 +102,21 @@ class CustomLoginForm(forms.Form):
         required=True,
         label='Номер телефона',
         widget=forms.TextInput(attrs={
-            'class': 'w-full px-4 py-3 rounded-xl border border-border bg-background text-foreground',
-            'placeholder': '+998'
+            'class': 'w-full pl-28 pr-4 py-3.5 bg-muted border-2 border-transparent rounded-xl text-foreground placeholder-muted-foreground focus:border-primary focus:outline-none transition-colors text-lg',
+            'placeholder': '90 123 45 67',
+            'inputmode': 'tel',
+            'autocomplete': 'tel',
+            'autofocus': True,
+            'id': 'phone'
         })
     )
     
     password = forms.CharField(
         label='Пароль',
         widget=forms.PasswordInput(attrs={
-            'class': 'w-full px-4 py-3 rounded-xl border border-border bg-background text-foreground',
-            'placeholder': '••••••••'
+            'class': 'w-full pl-12 pr-12 py-3.5 bg-muted border-2 border-transparent rounded-xl text-foreground placeholder-muted-foreground focus:border-primary focus:outline-none transition-colors text-lg',
+            'placeholder': '••••••••',
+            'id': 'password'
         })
     )
     
