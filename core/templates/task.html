@@ -57,7 +57,7 @@
                     </div>
 
                     <div class="mb-8">
-                        <p class="text-lg text-foreground leading-relaxed">{{ task.question }}</p>
+                        <p class="text-lg text-foreground leading-relaxed math-content">{{ task.question|safe }}</p>
                     </div>
 
                     <!-- Answer Options -->
@@ -68,9 +68,9 @@
                                 {% for key, value in task.options.items %}
                                 <label class="flex items-center p-4 bg-muted/30 hover:bg-muted/50 rounded-xl cursor-pointer transition-all border-2 border-transparent hover:border-primary/30">
                                     <input type="radio" name="answer" value="{{ key }}" class="w-5 h-5 text-primary" required>
-                                    <span class="ml-4 flex-1 font-medium text-foreground">
+                                    <span class="ml-4 flex-1 font-medium text-foreground math-content">
                                         <span class="inline-block w-8 text-muted-foreground">{{ key }}.</span>
-                                        {{ value }}
+                                        {{ value|safe }}
                                     </span>
                                 </label>
                                 {% endfor %}
@@ -291,6 +291,26 @@
     /* Error message animation */
     #errorMessage {
         transition: opacity 0.3s ease-in-out;
+    }
+    
+    /* Улучшение отображения математических формул */
+    .math-content .katex {
+        font-size: 1.3em !important;
+    }
+    
+    .math-content .katex-display {
+        margin: 1em 0 !important;
+    }
+    
+    /* Увеличиваем размер формул в вопросе */
+    .math-content p .katex {
+        font-size: 1.5em !important;
+        line-height: 2 !important;
+    }
+    
+    /* Формулы в вариантах ответов */
+    label .math-content .katex {
+        font-size: 1.2em !important;
     }
     
     /* Animations */
@@ -606,5 +626,86 @@
             chatMessages.scrollTop = chatMessages.scrollHeight;
         });
     }
+    
+    // Функция для рендеринга математических формул с KaTeX
+    function renderMathFormulas() {
+        if (typeof renderMathInElement !== 'undefined') {
+            try {
+                // Рендерим формулы во всех элементах с классом math-content
+                const mathElements = document.querySelectorAll('.math-content');
+                mathElements.forEach(function(element) {
+                    renderMathInElement(element, {
+                        delimiters: [
+                            {left: '$$', right: '$$', display: true},   // Блочные формулы
+                            {left: '$', right: '$', display: false},    // Инлайн формулы
+                        ],
+                        throwOnError: false,
+                        errorColor: '#cc0000',
+                        trust: true,
+                        strict: false,
+                        // Увеличиваем размер формул
+                        displayMode: false,
+                        output: 'html',
+                        fleqn: false,
+                        // Автоматически определяем display mode для сложных формул
+                        macros: {
+                            "\\frac": "\\dfrac"  // Используем displaystyle для дробей
+                        }
+                    });
+                    
+                    // Дополнительно: оборачиваем формулы с дробями в display mode
+                    const allFormulas = element.querySelectorAll('.katex');
+                    allFormulas.forEach(function(formula) {
+                        const html = formula.innerHTML;
+                        // Если формула содержит дробь, делаем её крупнее
+                        if (html.includes('frac') || html.includes('sqrt')) {
+                            formula.style.fontSize = '1.4em';
+                            formula.style.display = 'inline-block';
+                            formula.style.margin = '0.5em 0';
+                        }
+                    });
+                });
+                
+                console.log('✅ KaTeX формулы отрендерены');
+            } catch (error) {
+                console.error('❌ Ошибка рендеринга KaTeX:', error);
+            }
+        } else {
+            console.warn('⚠️ KaTeX не загружен');
+        }
+    }
+    
+    // Функция ожидания загрузки KaTeX
+    function waitForKaTeX(callback, maxAttempts = 50) {
+        let attempts = 0;
+        const checkInterval = setInterval(function() {
+            attempts++;
+            if (typeof renderMathInElement !== 'undefined') {
+                clearInterval(checkInterval);
+                callback();
+            } else if (attempts >= maxAttempts) {
+                clearInterval(checkInterval);
+                console.error('⚠️ KaTeX не загрузился за отведенное время');
+            }
+        }, 100);
+    }
+    
+    // Рендерим формулы после загрузки страницы
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function() {
+            waitForKaTeX(renderMathFormulas);
+        });
+    } else {
+        // DOM уже загружен
+        waitForKaTeX(renderMathFormulas);
+    }
+    
+    // Также рендерим формулы после получения ответа от ИИ
+    const originalHandleSubmit = handleSubmit;
+    handleSubmit = function(event) {
+        originalHandleSubmit(event);
+        // Рендерим формулы через небольшую задержку, чтобы контент успел загрузиться
+        setTimeout(renderMathFormulas, 500);
+    };
 </script>
 {% endblock %}
