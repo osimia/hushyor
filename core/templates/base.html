@@ -431,8 +431,11 @@
             e.preventDefault();
             deferredPrompt = e;
             
-            // Если это не соцсеть и не приложение - показываем нашу КРАСИВУЮ шторку
-            if (!isStandalone) {
+            // Проверяем, находимся ли мы на главной странице
+            const isHomePage = window.location.pathname === '/' || window.location.pathname === '';
+            
+            // Если это не соцсеть, не приложение И мы на главной - показываем нашу КРАСИВУЮ шторку
+            if (!isStandalone && isHomePage) {
                 setTimeout(() => {
                     pwaSheet.classList.add('active');
                 }, 2000); // Показываем через 2 секунды после входа
@@ -457,11 +460,16 @@
 
         // === ЛОГИКА ДЛЯ IOS ===
         if (isIos && !isStandalone && !isSocialWebview) {
+            // Проверяем, находимся ли мы на главной странице
+            const isHomePage = window.location.pathname === '/' || window.location.pathname === '';
+            
             // Для iOS мы не можем вызвать установку кнопкой, но можем показать подсказку
-            // Показываем подсказку через 3 секунды
-            setTimeout(() => {
-                document.getElementById('ios-install-guide').style.display = 'block';
-            }, 3000);
+            // Показываем подсказку через 3 секунды только на главной
+            if (isHomePage) {
+                setTimeout(() => {
+                    document.getElementById('ios-install-guide').style.display = 'block';
+                }, 3000);
+            }
         }
     </script>
 </body>

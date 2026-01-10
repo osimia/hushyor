@@ -20,10 +20,17 @@
                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
                 {% trans "Назад" %}
             </a>
-            <div class="flex items-center justify-between flex-wrap gap-3">
-                <div>
-                    <h1 class="font-heading font-bold text-2xl text-foreground">{% trans "Задание" %} {{ current_number }} {% trans "из" %} {{ total_tasks }}</h1>
-                    <p class="text-muted-foreground">{% trans "Лёгкий уровень" %} • {% trans "5 очков" %}</p>
+            <div class="flex items-center justify-between flex-wrap gap-3 mb-3">
+                <div class="flex items-center gap-3 flex-wrap">
+                    <div>
+                        <h1 class="font-heading font-bold text-2xl text-foreground">{% trans "Задание" %} {{ current_number }} {% trans "из" %} {{ total_tasks }}</h1>
+                        <p class="text-muted-foreground">{% trans "Лёгкий уровень" %} • {% trans "5 очков" %}</p>
+                    </div>
+                    <!-- Study Theory Button (Compact) -->
+                    <button onclick="openTheoryModal()" class="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-primary to-secondary text-white rounded-lg font-semibold text-sm hover:shadow-lg hover:scale-105 transition-all duration-200">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804V16.5A1.5 1.5 0 003.5 18c1.798 0 3.5-.5 5-1.354A7.968 7.968 0 0012 18a7.968 7.968 0 003.5-.804c1.057.514 2.245.804 3.5.804a1.5 1.5 0 001.5-1.5V4.804A7.968 7.968 0 0015.5 4c-1.255 0-2.443.29-3.5.804A7.968 7.968 0 009 4.804z"></path></svg>
+                        {% trans "Изучить тему" %}
+                    </button>
                 </div>
                 <div class="flex items-center gap-2">
                     {% if attempt_info and attempt_info.is_solved %}
@@ -43,9 +50,9 @@
             </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 gap-6">
             <!-- Main Task Area -->
-            <div class="lg:col-span-2 space-y-6">
+            <div class="space-y-6">
                 <!-- Question Card -->
                 <div class="bg-card rounded-2xl p-8 shadow-card border border-border/50">
                     <div class="flex items-center justify-between mb-6">
@@ -135,41 +142,6 @@
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                     </a>
                     {% endif %}
-                </div>
-            </div>
-
-            <!-- Study Theory Sidebar -->
-            <div class="lg:col-span-1">
-                <div class="rounded-2xl shadow-card overflow-hidden sticky top-24">
-                    <!-- Header with Gradient -->
-                    <div class="p-6 gradient-hero">
-                        <div class="flex items-center gap-3 mb-4">
-                            <div class="w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                                <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20"><path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804V16.5A1.5 1.5 0 003.5 18c1.798 0 3.5-.5 5-1.354A7.968 7.968 0 0012 18a7.968 7.968 0 003.5-.804c1.057.514 2.245.804 3.5.804a1.5 1.5 0 001.5-1.5V4.804A7.968 7.968 0 0015.5 4c-1.255 0-2.443.29-3.5.804A7.968 7.968 0 009 4.804z"></path></svg>
-                            </div>
-                            <div>
-                                <h3 class="font-heading font-bold text-lg text-white">{% trans "ИИ-помощник" %}</h3>
-                                <p class="text-xs text-white/80">Hushyor AI</p>
-                            </div>
-                        </div>
-                        
-                        <!-- Study Theory Button -->
-                        <button onclick="openTheoryModal()" class="w-full px-6 py-4 bg-white text-primary rounded-xl font-bold text-lg hover:shadow-2xl hover:scale-105 transition-all duration-200 flex items-center justify-center gap-3">
-                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804V16.5A1.5 1.5 0 003.5 18c1.798 0 3.5-.5 5-1.354A7.968 7.968 0 0012 18a7.968 7.968 0 003.5-.804c1.057.514 2.245.804 3.5.804a1.5 1.5 0 001.5-1.5V4.804A7.968 7.968 0 0015.5 4c-1.255 0-2.443.29-3.5.804A7.968 7.968 0 009 4.804z"></path></svg>
-                            {% trans "Изучить тему" %}
-                        </button>
-                    </div>
-
-                    <!-- Progress Section -->
-                    <div class="p-6 bg-card">
-                        <div class="flex items-center justify-between mb-2">
-                            <span class="text-sm font-medium text-muted-foreground">{% trans "Прогресс" %}</span>
-                            <span class="text-sm font-bold text-primary">{{ current_number }}/{{ total_tasks }}</span>
-                        </div>
-                        <div class="h-2 bg-muted rounded-full overflow-hidden">
-                            <div class="h-full bg-gradient-primary transition-all duration-300" style="width: {% widthratio current_number total_tasks 100 %}%;"></div>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
@@ -274,6 +246,70 @@
                 {% trans "Закрыть" %}
             </button>
             <button onclick="goToNextTask()" class="flex-1 px-6 py-3 bg-gradient-to-r from-primary to-secondary text-white rounded-xl font-semibold hover:shadow-lg transition-all">
+                {% trans "Следующая задача" %}
+                <svg class="w-5 h-5 inline ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Error Modal (для неправильного ответа) -->
+<div id="errorModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 backdrop-blur-sm transition-all duration-300">
+    <div class="relative bg-white rounded-3xl p-8 max-w-md w-full mx-4 shadow-2xl modal-content" id="errorModalContent">
+        <!-- Close Button -->
+        <button onclick="closeErrorModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+        
+        <!-- Error Icon with Animation -->
+        <div class="flex justify-center mb-6">
+            <div class="relative">
+                <div class="w-24 h-24 bg-gradient-to-br from-red-400 to-orange-500 rounded-full flex items-center justify-center shadow-lg animate-bounce-slow">
+                    <svg class="w-12 h-12 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+                    </svg>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Error Message -->
+        <div class="text-center mb-6">
+            <h2 class="font-heading font-bold text-3xl text-gray-800 mb-2">{% trans "Неправильно" %}</h2>
+            <p class="text-gray-600 text-lg">{% trans "Не расстраивайтесь, попробуйте ещё раз!" %}</p>
+        </div>
+        
+        <!-- Attempt Info -->
+        <div class="bg-gradient-to-r from-orange-50 to-red-50 rounded-2xl p-6 mb-6 border-2 border-orange-200">
+            <div class="flex items-center justify-center gap-3">
+                <svg class="w-8 h-8 text-orange-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg>
+                <div>
+                    <p class="text-sm text-gray-600 mb-1">{% trans "Попытка" %}</p>
+                    <p class="font-heading font-bold text-2xl text-orange-600" id="errorAttemptCount">1</p>
+                </div>
+            </div>
+            <div id="errorAttemptInfo" class="text-center mt-3 text-sm text-gray-500"></div>
+        </div>
+        
+        <!-- Correct Answer Display -->
+        <div class="bg-blue-50 rounded-xl p-4 mb-6 border border-blue-200">
+            <p class="text-sm text-gray-600 mb-1">{% trans "Правильный ответ:" %}</p>
+            <p class="font-semibold text-blue-800" id="errorCorrectAnswerText"></p>
+        </div>
+        
+        <!-- Hint -->
+        <div class="bg-yellow-50 rounded-xl p-4 mb-6 border border-yellow-200">
+            <p class="text-sm text-yellow-800">
+                <svg class="w-4 h-4 inline mr-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>
+                {% trans "Эта задача будет показана снова в конце для повторения" %}
+            </p>
+        </div>
+        
+        <!-- Action Buttons -->
+        <div class="flex gap-3">
+            <button onclick="closeErrorModal()" class="flex-1 px-6 py-3 bg-gray-100 text-gray-700 rounded-xl font-semibold hover:bg-gray-200 transition-colors">
+                {% trans "Попробовать снова" %}
+            </button>
+            <button onclick="goToNextTaskFromError()" class="flex-1 px-6 py-3 bg-gradient-to-r from-primary to-secondary text-white rounded-xl font-semibold hover:shadow-lg transition-all">
                 {% trans "Следующая задача" %}
                 <svg class="w-5 h-5 inline ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg>
             </button>
@@ -411,8 +447,16 @@
                             data.total_xp
                         );
                     } else {
-                        // Неправильный ответ - показываем сообщение об ошибке
-                        showErrorMessage(data.attempts);
+                        // Неправильный ответ - показываем модальное окно
+                        const optionsObj = '{{ task_options_json|safe }}';
+                        
+                        showErrorModal(
+                            optionsObj,
+                            data.correct_answer,
+                            data.attempts,
+                            data.next_task_id,
+                            data.is_authenticated
+                        );
                     }
                 })
                 .catch(error => {
@@ -479,6 +523,9 @@
         window.nextTaskId = nextTaskId;
         window.isUserAuthenticated = isAuthenticated;
         
+        // Удаляем задачу из списка повторений (если она там была)
+        removeTaskFromRetry('{{ task.id }}');
+        
         // Показываем модальное окно
         modal.classList.remove('hidden');
         modal.classList.add('flex');
@@ -534,12 +581,124 @@
         if (window.nextTaskId) {
             window.location.href = `/task/${window.nextTaskId}/`;
         } else {
-            // Если нет следующей задачи, возвращаемся к списку предметов
-            window.location.href = '/subject/{{ task.subject.id }}/';
+            // Если нет следующей задачи, проверяем есть ли задачи для повторения
+            const retryTasks = getRetryTasks();
+            if (retryTasks.length > 0) {
+                // Показываем уведомление о повторении
+                if (confirm(`У вас есть ${retryTasks.length} задач(и) для повторения. Перейти к повторению?`)) {
+                    const firstRetryTask = retryTasks[0];
+                    window.location.href = `/task/${firstRetryTask}/`;
+                } else {
+                    // Очищаем список и возвращаемся к предмету
+                    clearRetryTasks();
+                    window.location.href = '/subject/{{ task.subject.id }}/';
+                }
+            } else {
+                // Если нет задач для повторения, возвращаемся к списку предметов
+                window.location.href = '/subject/{{ task.subject.id }}/';
+            }
         }
     }
     
-    // Функция показа сообщения об ошибке
+    // Функция показа модального окна ошибки
+    function showErrorModal(optionsJson, correctAnswer, attempts, nextTaskId, isAuthenticated) {
+        const modal = document.getElementById('errorModal');
+        const attemptCountElement = document.getElementById('errorAttemptCount');
+        const attemptInfo = document.getElementById('errorAttemptInfo');
+        const correctAnswerText = document.getElementById('errorCorrectAnswerText');
+        
+        // Устанавливаем данные
+        attemptCountElement.textContent = attempts;
+        
+        if (attempts > 1) {
+            attemptInfo.textContent = `Попытка ${attempts}. Не сдавайтесь!`;
+        } else {
+            attemptInfo.textContent = 'Первая попытка. Попробуйте ещё раз!';
+        }
+        
+        // Парсим опции и находим правильный ответ
+        try {
+            const options = JSON.parse(optionsJson.replace(/'/g, '"'));
+            correctAnswerText.textContent = `${correctAnswer}. ${options[correctAnswer]}`;
+        } catch (e) {
+            correctAnswerText.textContent = correctAnswer;
+        }
+        
+        // Сохраняем ID следующей задачи и статус аутентификации
+        window.nextTaskId = nextTaskId;
+        window.isUserAuthenticated = isAuthenticated;
+        
+        // Добавляем текущую задачу в список для повторения
+        addTaskToRetry('{{ task.id }}');
+        
+        // Показываем модальное окно
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    }
+    
+    // Функция закрытия модального окна ошибки
+    function closeErrorModal() {
+        const modal = document.getElementById('errorModal');
+        const modalContent = document.getElementById('errorModalContent');
+        
+        modalContent.classList.remove('scale-100', 'opacity-100');
+        modalContent.classList.add('scale-95', 'opacity-0');
+        
+        setTimeout(() => {
+            modal.classList.remove('flex');
+            modal.classList.add('hidden');
+        }, 300);
+    }
+    
+    // Функция перехода к следующей задаче из модального окна ошибки
+    function goToNextTaskFromError() {
+        // Если пользователь не авторизован, перенаправляем на страницу регистрации
+        if (!window.isUserAuthenticated) {
+            window.location.href = '/register/';
+            return;
+        }
+        
+        if (window.nextTaskId) {
+            window.location.href = `/task/${window.nextTaskId}/`;
+        } else {
+            // Если нет следующей задачи, проверяем есть ли задачи для повторения
+            const retryTasks = getRetryTasks();
+            if (retryTasks.length > 0) {
+                // Переходим к первой задаче для повторения
+                const firstRetryTask = retryTasks[0];
+                removeTaskFromRetry(firstRetryTask);
+                window.location.href = `/task/${firstRetryTask}/`;
+            } else {
+                // Если нет задач для повторения, возвращаемся к списку предметов
+                window.location.href = '/subject/{{ task.subject.id }}/';
+            }
+        }
+    }
+    
+    // Система отслеживания задач для повторения (используем localStorage)
+    function addTaskToRetry(taskId) {
+        let retryTasks = JSON.parse(localStorage.getItem('retryTasks_{{ task.subject.id }}') || '[]');
+        if (!retryTasks.includes(taskId)) {
+            retryTasks.push(taskId);
+            localStorage.setItem('retryTasks_{{ task.subject.id }}', JSON.stringify(retryTasks));
+        }
+    }
+    
+    function getRetryTasks() {
+        return JSON.parse(localStorage.getItem('retryTasks_{{ task.subject.id }}') || '[]');
+    }
+    
+    function removeTaskFromRetry(taskId) {
+        let retryTasks = JSON.parse(localStorage.getItem('retryTasks_{{ task.subject.id }}') || '[]');
+        retryTasks = retryTasks.filter(id => id !== taskId);
+        localStorage.setItem('retryTasks_{{ task.subject.id }}', JSON.stringify(retryTasks));
+    }
+    
+    function clearRetryTasks() {
+        localStorage.removeItem('retryTasks_{{ task.subject.id }}');
+    }
+    
+    // Функция показа сообщения об ошибке (оставляем для совместимости)
     function showErrorMessage(attempts) {
         const errorMessage = document.getElementById('errorMessage');
         const attemptCount = document.getElementById('attemptCount');
