@@ -199,10 +199,27 @@ def task_view(request, task_id):
                 # Увеличиваем счетчик
                 cache.set(user_key, requests_count + 1, 3600)  # 1 час
             
-            if 'theory' in request.POST:
-                # Запрос теории
+            if 'request_theory' in request.POST:
+                # Запрос теории через модальное окно
                 logger.info(f"AI theory request for task {task_id} by user {request.user.id if request.user.is_authenticated else 'anonymous'}")
-                ai_reply = get_theory_lesson(task.question, task.subject.title)
+                try:
+                    # Получаем текущий язык интерфейса
+                    from django.utils import translation
+                    current_language = translation.get_language()
+                    
+                    theory_text = get_theory_lesson(task.question, task.subject.title, language=current_language)
+                    if is_ajax:
+                        return JsonResponse({'success': True, 'theory': theory_text})
+                except Exception as e:
+                    logger.error(f"Error generating theory: {e}", exc_info=True)
+                    if is_ajax:
+                        return JsonResponse({'success': False, 'error': 'Ошибка при генерации теории'}, status=500)
+            elif 'theory' in request.POST:
+                # Запрос теории (старый метод, оставляем для совместимости)
+                logger.info(f"AI theory request for task {task_id} by user {request.user.id if request.user.is_authenticated else 'anonymous'}")
+                from django.utils import translation
+                current_language = translation.get_language()
+                ai_reply = get_theory_lesson(task.question, task.subject.title, language=current_language)
                 if is_ajax:
                     return JsonResponse({'ai_reply': ai_reply})
             elif 'hint' in request.POST:
@@ -277,6 +294,38 @@ def task_view(request, task_id):
                                 logger.error(f"Error awarding points: {e}", exc_info=True)
                         
                         attempt_info.save()
+                else:
+                    # Обработка для незарегистрированных пользователей
+                    # Инициализируем сессионные данные если их нет
+                    if 'guest_task_attempts' not in request.session:
+                        request.session['guest_task_attempts'] = {}
+                    if 'guest_xp' not in request.session:
+                        request.session['guest_xp'] = 0
+                    
+                    task_key = str(task_id)
+                    guest_attempts = request.session['guest_task_attempts']
+                    
+                    # Получаем количество попыток для этой задачи
+                    current_attempts = guest_attempts.get(task_key, 0)
+                    
+                    # Увеличиваем счетчик попыток
+                    current_attempts += 1
+                    guest_attempts[task_key] = current_attempts
+                    request.session['guest_task_attempts'] = guest_attempts
+                    
+                    if is_correct:
+                        # Начисляем очки незарегистрированному пользователю
+                        base_points = task.difficulty * 5
+                        if current_attempts == 1:
+                            points_earned = base_points
+                        else:
+                            points_earned = base_points // 2
+                        
+                        # Добавляем очки к общему счету гостя
+                        request.session['guest_xp'] = request.session.get('guest_xp', 0) + points_earned
+                        request.session.modified = True
+                        
+                        logger.info(f"Awarded {points_earned} points to guest user. Total: {request.session['guest_xp']}")
                 
                 # Если это AJAX запрос, возвращаем JSON
                 if is_ajax:
@@ -292,12 +341,24 @@ def task_view(request, task_id):
                         except ValueError:
                             pass
                     
+                    # Получаем количество попыток
+                    if request.user.is_authenticated and attempt_info:
+                        attempts_count = attempt_info.attempts
+                        total_xp = UserProfile.objects.get(user=request.user).xp if UserProfile.objects.filter(user=request.user).exists() else 0
+                    else:
+                        # Для незарегистрированных пользователей
+                        task_key = str(task_id)
+                        attempts_count = request.session.get('guest_task_attempts', {}).get(task_key, 1)
+                        total_xp = request.session.get('guest_xp', 0)
+                    
                     return JsonResponse({
                         'is_correct': is_correct,
                         'points_earned': points_earned,
                         'correct_answer': task.correct_answer,
-                        'attempts': attempt_info.attempts if attempt_info else 1,
-                        'next_task_id': next_task_id
+                        'attempts': attempts_count,
+                        'next_task_id': next_task_id,
+                        'is_authenticated': request.user.is_authenticated,
+                        'total_xp': total_xp
                     })
         except Exception as e:
             logger.error(f"Error in task_view POST: {e}", exc_info=True)

@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}hushyor - Главная{% endblock %}
+{% load i18n %}
+{% block title %}hushyor - {% trans "Главная" %}{% endblock %}
 {% block content %}
 <!-- Hero Section -->
 <section class="relative overflow-hidden">
@@ -13,15 +14,15 @@
         <div class="max-w-3xl mx-auto text-center">
             <div class="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-semibold mb-6 animate-fade-in">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path></svg>
-                Новый способ подготовки к ММТ
+                {% trans "Новый способ подготовки к ММТ" %}
             </div>
 
             <h1 class="font-heading font-extrabold text-4xl md:text-6xl text-foreground mb-6 animate-fade-in" style="animation-delay: 100ms;">
-                Подготовка к ММТ с <span class="text-gradient">ИИ-помощником</span>
+                {% trans "Подготовка к ММТ с" %} <span class="text-gradient">{% trans "ИИ-помощником" %}</span>
             </h1>
             
             <p class="text-lg md:text-xl text-muted-foreground mb-8 animate-fade-in" style="animation-delay: 200ms;">
-                Решай задачи, получай подсказки от ИИ и готовься к экзаменам эффективно
+                {% trans "Решай задачи, получай подсказки от ИИ и готовься к экзаменам эффективно" %}
             </p>
             
             <!-- Hero CTA Button -->
@@ -29,15 +30,15 @@
                 {% if not user.is_authenticated %}
                 <a href="/demo/" class="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 bg-gradient-to-r from-primary to-secondary text-white rounded-xl font-bold text-lg hover:shadow-2xl hover:scale-105 transition-all duration-200 tap-target" aria-label="Начать подготовку бесплатно">
                     <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-                    Начать подготовку бесплатно
+                    {% trans "Начать подготовку бесплатно" %}
                 </a>
                 <a href="/register/" class="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 bg-white text-primary border-2 border-primary rounded-xl font-semibold text-lg hover:bg-primary hover:text-white transition-all duration-200 tap-target" aria-label="Создать аккаунт">
-                    Создать аккаунт
+                    {% trans "Создать аккаунт" %}
                 </a>
                 {% else %}
                 <a href="#subjects" class="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 bg-gradient-to-r from-primary to-secondary text-white rounded-xl font-bold text-lg hover:shadow-2xl hover:scale-105 transition-all duration-200 tap-target">
                     <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
-                    Продолжить обучение
+                    {% trans "Продолжить обучение" %}
                 </a>
                 {% endif %}
             </div>
@@ -54,8 +55,8 @@
                     <svg class="w-6 h-6 text-primary-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
                 </div>
                 <div>
-                    <p class="font-heading font-bold text-2xl text-foreground">Доступ 24/7</p>
-                    <p class="text-sm text-muted-foreground">Учись в любое время</p>
+                    <p class="font-heading font-bold text-2xl text-foreground">{% trans "Доступ 24/7" %}</p>
+                    <p class="text-sm text-muted-foreground">{% trans "Учись в любое время" %}</p>
                 </div>
             </div>
             <div class="flex items-center justify-center gap-4 opacity-0 animate-fade-in" style="animation-delay: 500ms;">
@@ -64,7 +65,7 @@
                 </div>
                 <div>
                     <p class="font-heading font-bold text-2xl text-foreground">{{ stats.total_tasks }}+</p>
-                    <p class="text-sm text-muted-foreground">Задач</p>
+                    <p class="text-sm text-muted-foreground">{% trans "Задач" %}</p>
                 </div>
             </div>
             <div class="flex items-center justify-center gap-4 opacity-0 animate-fade-in" style="animation-delay: 600ms;">
@@ -73,7 +74,7 @@
                 </div>
                 <div>
                     <p class="font-heading font-bold text-2xl text-foreground">{{ stats.total_subjects }}</p>
-                    <p class="text-sm text-muted-foreground">Предметов</p>
+                    <p class="text-sm text-muted-foreground">{% trans "Предметов" %}</p>
                 </div>
             </div>
         </div>
@@ -84,8 +85,8 @@
 <section id="subjects" class="py-16 md:py-24 bg-muted/30">
     <div class="container mx-auto px-6 md:px-8 lg:px-12">
         <div class="text-center mb-12">
-            <h2 class="font-heading font-bold text-3xl md:text-4xl text-foreground mb-4">Выберите предмет</h2>
-            <p class="text-muted-foreground text-lg">Начните с любого предмета и отслеживайте свой прогресс</p>
+            <h2 class="font-heading font-bold text-3xl md:text-4xl text-foreground mb-4">{% trans "Выберите предмет" %}</h2>
+            <p class="text-muted-foreground text-lg">{% trans "Начните с любого предмета и отслеживайте свой прогресс" %}</p>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -104,7 +105,7 @@
 
                 <div class="mb-4">
                     <div class="flex justify-between items-center mb-1">
-                        <span class="text-xs text-foreground font-medium">Прогресс</span>
+                        <span class="text-xs text-foreground font-medium">{% trans "Прогресс" %}</span>
                         <span class="text-xs font-bold text-foreground">{{ subject.percentage }}%</span>
                     </div>
                     <div class="h-2 bg-muted rounded-full overflow-hidden">
@@ -113,12 +114,12 @@
                 </div>
 
                 <div class="w-full flex items-center justify-between px-4 py-3 rounded-lg hover:bg-muted transition-colors tap-target">
-                    <span class="font-semibold text-sm text-foreground">{% if user.is_authenticated %}Продолжить{% else %}Попробовать{% endif %}</span>
+                    <span class="font-semibold text-sm text-foreground">{% if user.is_authenticated %}{% trans "Продолжить" %}{% else %}{% trans "Попробовать" %}{% endif %}</span>
                     <svg class="w-4 h-4 transition-transform group-hover:translate-x-1 text-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg>
                 </div>
             </a>
             {% empty %}
-            <p class="col-span-3 text-center text-muted-foreground">Нет предметов.</p>
+            <p class="col-span-3 text-center text-muted-foreground">{% trans "Нет предметов." %}</p>
             {% endfor %}
         </div>
     </div>
@@ -134,17 +135,17 @@
             </div>
 
             <div class="relative">
-                <h2 class="font-heading font-bold text-3xl md:text-4xl text-primary-foreground mb-4">Готовы начать подготовку?</h2>
+                <h2 class="font-heading font-bold text-3xl md:text-4xl text-primary-foreground mb-4">{% trans "Готовы начать подготовку?" %}</h2>
                 <p class="text-primary-foreground/80 text-lg mb-8 max-w-xl mx-auto">
-                    Присоединяйтесь к тысячам учеников, которые уже улучшили свои результаты с <span class="font-bold">hushyor</span>.
+                    {% trans "Присоединяйтесь к тысячам учеников, которые уже улучшили свои результаты с" %} <span class="font-bold">hushyor</span>.
                 </p>
                 <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
                     <a href="/demo/" class="inline-flex items-center px-8 py-4 bg-white text-primary rounded-xl font-bold text-lg hover:shadow-2xl hover:scale-105 transition-all duration-200 tap-target">
                         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                        Попробовать демо
+                        {% trans "Попробовать демо" %}
                     </a>
                     <a href="/register/" class="inline-flex items-center px-8 py-4 bg-primary-foreground/20 hover:bg-primary-foreground/30 text-primary-foreground border border-primary-foreground/30 rounded-xl font-semibold text-lg transition-colors tap-target">
-                        Начать бесплатно
+                        {% trans "Начать бесплатно" %}
                         <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg>
                     </a>
                 </div>

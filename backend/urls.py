@@ -16,6 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from django.conf.urls.i18n import i18n_patterns
 from rest_framework.routers import DefaultRouter
 from core import views
 from core.health import health_check, readiness_check, liveness_check
@@ -36,6 +37,9 @@ urlpatterns = [
     path('sitemap.xml', views.sitemap_view, name='sitemap'),
     path('robots.txt', views.robots_txt_view, name='robots'),
     path('yandex_f58006ecd2f5e538.html', views.yandex_verification_view, name='yandex_verification'),
+    
+    # ==================== i18n ====================
+    path('i18n/', include('django.conf.urls.i18n')),
     
     # ==================== HTML Views (существующий сайт) ====================
     path('', views.main_view, name='main'),

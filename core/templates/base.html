@@ -1,6 +1,7 @@
 {% load static %}
+{% load i18n %}
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="{% get_current_language as LANGUAGE_CODE %}{{ LANGUAGE_CODE }}">
 <head>
     <!-- Yandex.Metrika counter (Lazy Load) -->
     <script type="text/javascript">
@@ -236,30 +237,52 @@
                 <div class="flex items-center gap-2">
                     <a href="/" class="px-4 py-2 rounded-lg font-medium text-sm text-gray-700 hover:bg-gray-100 hover:text-primary transition-all duration-200 flex items-center gap-2" aria-label="Главная страница">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
-                        <span class="hidden md:inline">Главная</span>
+                        <span class="hidden md:inline">{% trans "Главная" %}</span>
                     </a>
                     <a href="/leaderboard/" class="px-4 py-2 rounded-lg font-medium text-sm text-gray-700 hover:bg-gray-100 hover:text-primary transition-all duration-200 flex items-center gap-2" aria-label="Рейтинг учеников">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path></svg>
-                        <span class="hidden md:inline">Рейтинг</span>
+                        <span class="hidden md:inline">{% trans "Рейтинг" %}</span>
                     </a>
                     {% if user.is_authenticated %}
                     <a href="/profile/" class="px-4 py-2 rounded-lg font-medium text-sm text-gray-700 hover:bg-gray-100 hover:text-primary transition-all duration-200 flex items-center gap-2">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
-                        <span class="hidden md:inline">Профиль</span>
+                        <span class="hidden md:inline">{% trans "Профиль" %}</span>
                     </a>
                     <a href="/logout/" class="px-4 py-2 rounded-lg font-medium text-sm text-gray-700 hover:bg-red-50 hover:text-red-600 transition-all duration-200 flex items-center gap-2">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
-                        <span class="hidden md:inline">Выйти</span>
+                        <span class="hidden md:inline">{% trans "Выйти" %}</span>
                     </a>
                     {% else %}
                     <a href="/login/" class="px-4 py-2 rounded-lg font-medium text-sm text-gray-700 hover:bg-gray-100 hover:text-primary transition-all duration-200 flex items-center gap-2">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path></svg>
-                        <span class="hidden md:inline">Войти</span>
+                        <span class="hidden md:inline">{% trans "Войти" %}</span>
                     </a>
                     <a href="/register/" class="hidden md:inline-flex px-5 py-2.5 bg-accent hover:bg-accent/90 text-white rounded-lg font-semibold text-sm hover:shadow-lg hover:scale-105 transition-all duration-200 tap-target">
-                        Регистрация
+                        {% trans "Регистрация" %}
                     </a>
                     {% endif %}
+                    
+                    <!-- Language Switcher (moved to end) -->
+                    <div class="relative group">
+                        <button class="px-3 py-2 rounded-lg font-medium text-sm text-gray-700 hover:bg-gray-100 transition-all duration-200 flex items-center gap-2">
+                            {% get_current_language as LANGUAGE_CODE %}
+                            <span class="text-xl">{% if LANGUAGE_CODE == 'tg' %}🇹🇯{% else %}🇷🇺{% endif %}</span>
+                        </button>
+                        <div class="absolute right-0 mt-2 w-32 bg-white rounded-lg shadow-lg border border-gray-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                            <form action="{% url 'set_language' %}" method="post" class="p-1">
+                                {% csrf_token %}
+                                <input name="next" type="hidden" value="{{ request.path }}">
+                                <button type="submit" name="language" value="tg" class="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md transition-colors flex items-center gap-2">
+                                    <span class="text-xl">🇹🇯</span>
+                                    <span>Тоҷикӣ</span>
+                                </button>
+                                <button type="submit" name="language" value="ru" class="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md transition-colors flex items-center gap-2">
+                                    <span class="text-xl">🇷🇺</span>
+                                    <span>Русский</span>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -268,5 +291,178 @@
     <main id="main-content" role="main">
         {% block content %}{% endblock %}
     </main>
+
+    <!-- PWA Installation Sheet -->
+    <style>
+        /* Шторка установки (как в настоящем приложении) */
+        #pwa-install-sheet {
+            position: fixed;
+            bottom: -100%; /* Спрятано внизу */
+            left: 0;
+            width: 100%;
+            background: #fff;
+            border-radius: 20px 20px 0 0;
+            box-shadow: 0 -5px 25px rgba(0,0,0,0.2);
+            padding: 20px;
+            z-index: 10000;
+            transition: bottom 0.4s ease-out;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        
+        #pwa-install-sheet.active {
+            bottom: 0; /* Выезжает вверх */
+        }
+
+        /* Иконка приложения в шторке */
+        .app-icon-preview {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, hsl(229, 84%, 60%) 0%, hsl(261, 87%, 50%) 100%);
+            border-radius: 12px;
+            margin-bottom: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+        }
+
+        /* Главная кнопка установки */
+        .install-btn-main {
+            background: linear-gradient(135deg, hsl(229, 84%, 60%) 0%, hsl(261, 87%, 50%) 100%);
+            color: white;
+            border: none;
+            padding: 12px 40px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 50px;
+            width: 100%;
+            margin-top: 10px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .install-btn-main:hover {
+            transform: scale(1.02);
+        }
+
+        /* Оверлей для iOS (Стрелочка) */
+        #ios-install-guide {
+            display: none;
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            z-index: 10001;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+        }
+        /* Анимация стрелки вниз */
+        .bounce-arrow {
+            font-size: 24px;
+            animation: bounce 2s infinite;
+            display: block;
+            margin-top: 5px;
+        }
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {transform: translateY(0);}
+            40% {transform: translateY(5px);}
+            60% {transform: translateY(3px);}
+        }
+    </style>
+
+    <div id="pwa-install-sheet">
+        <div class="app-icon-preview">
+            📚
+        </div>
+        
+        <h3 style="margin: 5px 0; color: #333; font-family: 'Nunito', sans-serif;">{% trans "Установить Hushyor?" %}</h3>
+        <p style="margin: 5px 0 15px; color: #666; font-size: 14px;">{% trans "Решай тесты быстрее и без интернета" %}</p>
+        
+        <button id="pwa-install-trigger" class="install-btn-main">
+            📥 {% trans "Установить приложение" %}
+        </button>
+        
+        <button onclick="closePwaSheet()" style="background:none; border:none; color:#999; margin-top:10px; font-size:12px; cursor:pointer;">{% trans "Позже" %}</button>
+    </div>
+
+    <div id="ios-install-guide">
+        <p style="margin:0; font-weight:bold; color:#333;">{% trans "Установите на iPhone:" %}</p>
+        <p style="margin:5px 0; font-size:14px; color:#555;">{% trans "Нажмите" %} <span style="font-size:18px;">⬆️</span> {% trans "внизу, затем" %} <b>{% trans "«На экран Домой»" %}</b></p>
+        <span class="bounce-arrow">⬇️</span>
+        <button onclick="document.getElementById('ios-install-guide').style.display='none'" style="position:absolute; top:-10px; right:-10px; background:#eee; border:none; border-radius:50%; width:25px; height:25px; cursor:pointer;">✕</button>
+    </div>
+
+    <script>
+        // 1. Проверяем, не запущено ли уже приложение
+        const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+        
+        // 2. Детектор устройства
+        const ua = navigator.userAgent;
+        const isIos = /iphone|ipad|ipod/.test(ua.toLowerCase());
+        const isAndroid = /android/.test(ua.toLowerCase());
+        
+        // 3. Детектор Соцсетей (Instagram/Telegram)
+        const isSocialWebview = (ua.indexOf('Instagram') > -1) || (ua.indexOf('Telegram') > -1);
+
+        // === ЛОГИКА ДЛЯ ANDROID (SOCIAL FIX) ===
+        if (isAndroid && isSocialWebview) {
+            // ГЕНИАЛЬНЫЙ ХОД: Выкидываем пользователя в Chrome
+            // Меняем URL на intent, который принудительно открывает Chrome
+            const currentUrl = window.location.href.replace('https://', '').replace('http://', '');
+            window.location.href = `intent://${currentUrl}#Intent;scheme=https;package=com.android.chrome;end`;
+        }
+
+        // === ЛОГИКА УСТАНОВКИ (ANDROID / PC) ===
+        let deferredPrompt;
+        const pwaSheet = document.getElementById('pwa-install-sheet');
+        const installBtn = document.getElementById('pwa-install-trigger');
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            // Не даем браузеру показать скучную полоску
+            e.preventDefault();
+            deferredPrompt = e;
+            
+            // Если это не соцсеть и не приложение - показываем нашу КРАСИВУЮ шторку
+            if (!isStandalone) {
+                setTimeout(() => {
+                    pwaSheet.classList.add('active');
+                }, 2000); // Показываем через 2 секунды после входа
+            }
+        });
+
+        installBtn.addEventListener('click', () => {
+            // Прячем шторку
+            pwaSheet.classList.remove('active');
+            // Запускаем системную установку
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    deferredPrompt = null;
+                });
+            }
+        });
+
+        function closePwaSheet() {
+            pwaSheet.classList.remove('active');
+        }
+
+        // === ЛОГИКА ДЛЯ IOS ===
+        if (isIos && !isStandalone && !isSocialWebview) {
+            // Для iOS мы не можем вызвать установку кнопкой, но можем показать подсказку
+            // Показываем подсказку через 3 секунды
+            setTimeout(() => {
+                document.getElementById('ios-install-guide').style.display = 'block';
+            }, 3000);
+        }
+    </script>
 </body>
 </html>

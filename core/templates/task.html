@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
-{% block title %}Задание №{{ task.id }} по {{ task.subject.title }} - hushyor{% endblock %}
+{% load i18n %}
+{% block title %}{% trans "Задание" %} №{{ task.id }} {% trans "по" %} {{ task.subject.title }} - hushyor{% endblock %}
 
 {% block og_title %}Задание №{{ task.id }} по {{ task.subject.title }} | hushyor{% endblock %}
 {% block og_description %}{{ task.question|truncatechars:150 }}{% endblock %}
@@ -17,18 +18,18 @@
         <div class="mb-6">
             <a href="/subject/{{ task.subject.id }}/" class="inline-flex items-center text-muted-foreground hover:text-foreground transition-colors mb-4">
                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
-                Назад
+                {% trans "Назад" %}
             </a>
             <div class="flex items-center justify-between flex-wrap gap-3">
                 <div>
-                    <h1 class="font-heading font-bold text-2xl text-foreground">Задание {{ current_number }} из {{ total_tasks }}</h1>
-                    <p class="text-muted-foreground">Лёгкий уровень • 5 очков</p>
+                    <h1 class="font-heading font-bold text-2xl text-foreground">{% trans "Задание" %} {{ current_number }} {% trans "из" %} {{ total_tasks }}</h1>
+                    <p class="text-muted-foreground">{% trans "Лёгкий уровень" %} • {% trans "5 очков" %}</p>
                 </div>
                 <div class="flex items-center gap-2">
                     {% if attempt_info and attempt_info.is_solved %}
                     <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-green-50 border border-green-200 text-green-700 text-sm font-semibold">
                         <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
-                        Решено
+                        {% trans "Решено" %}
                     </div>
                     {% endif %}
                     <a href="https://www.facebook.com/sharer/sharer.php?u=https://hushyor.com/task/{{ task.id }}/" 
@@ -36,7 +37,7 @@
                        rel="noopener noreferrer"
                        class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#1877F2] hover:bg-[#166FE5] text-white text-sm font-semibold transition-colors shadow-sm">
                         <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
-                        Поделиться
+                        {% trans "Поделиться" %}
                     </a>
                 </div>
             </div>
@@ -49,7 +50,7 @@
                 <div class="bg-card rounded-2xl p-8 shadow-card border border-border/50">
                     <div class="flex items-center justify-between mb-6">
                         <div class="flex items-center gap-1">
-                            <span class="text-xs text-muted-foreground mr-2">Сложность:</span>
+                            <span class="text-xs text-muted-foreground mr-2">{% trans "Сложность" %}:</span>
                             {% for i in "12345" %}
                             <div class="w-2 h-2 rounded-full {% if forloop.counter <= task.difficulty %}bg-primary{% else %}bg-muted{% endif %}"></div>
                             {% endfor %}
@@ -75,14 +76,14 @@
                                 </label>
                                 {% endfor %}
                             {% else %}
-                                <input type="text" name="answer" class="w-full px-4 py-3 bg-muted/30 border-2 border-border rounded-xl focus:border-primary focus:outline-none text-foreground" placeholder="Введите ваш ответ" required>
+                                <input type="text" name="answer" class="w-full px-4 py-3 bg-muted/30 border-2 border-border rounded-xl focus:border-primary focus:outline-none text-foreground" placeholder="{% trans 'Введите ваш ответ' %}" required>
                             {% endif %}
                         </div>
 
                         <!-- Action Buttons -->
                         <div class="flex gap-4">
                             <button type="submit" class="flex-1 px-6 py-4 bg-primary text-primary-foreground rounded-xl font-semibold hover:opacity-90 transition-opacity shadow-soft">
-                                Проверить ответ
+                                {% trans "Проверить ответ" %}
                             </button>
                             <button type="button" class="px-6 py-4 bg-transparent border-2 border-primary text-primary rounded-xl font-semibold hover:bg-primary/10 transition-colors">
                                 <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
@@ -95,8 +96,8 @@
                         <div class="flex items-center gap-3">
                             <svg class="w-6 h-6 text-red-600 animate-bounce-slow" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path></svg>
                             <div class="flex-1">
-                                <p class="font-semibold text-red-800">Неправильно</p>
-                                <p class="text-sm text-red-700 mt-1">Попробуйте еще раз! Используйте подсказку или теорию, если нужна помощь.</p>
+                                <p class="font-semibold text-red-800">{% trans "Неправильно" %}</p>
+                                <p class="text-sm text-red-700 mt-1">{% trans "Попробуйте еще раз! Используйте подсказку или теорию, если нужна помощь." %}</p>
                                 <p class="text-xs text-red-600 mt-1" id="attemptCount"></p>
                             </div>
                         </div>
@@ -108,12 +109,12 @@
                     {% if prev_task %}
                     <a href="/task/{{ prev_task.id }}/" class="flex items-center gap-2 px-2 sm:px-4 py-2 text-muted-foreground hover:text-foreground transition-colors whitespace-nowrap">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
-                        <span class="text-sm sm:text-base">Предыдущее</span>
+                        <span class="text-sm sm:text-base">{% trans "Предыдущее" %}</span>
                     </a>
                     {% else %}
                     <div class="flex items-center gap-2 px-2 sm:px-4 py-2 text-muted-foreground opacity-50 cursor-not-allowed whitespace-nowrap">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
-                        <span class="text-sm sm:text-base">Предыдущее</span>
+                        <span class="text-sm sm:text-base">{% trans "Предыдущее" %}</span>
                     </div>
                     {% endif %}
                     
@@ -125,97 +126,93 @@
                     
                     {% if next_task %}
                     <a href="/task/{{ next_task.id }}/" class="flex items-center gap-2 px-2 sm:px-4 py-2 text-primary hover:text-primary/80 transition-colors font-semibold whitespace-nowrap">
-                        <span class="text-sm sm:text-base">Следующее</span>
+                        <span class="text-sm sm:text-base">{% trans "Следующее" %}</span>
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
                     </a>
                     {% else %}
                     <a href="/subject/{{ task.subject.id }}/" class="flex items-center gap-2 px-3 sm:px-4 py-2 bg-primary text-primary-foreground rounded-xl font-semibold hover:opacity-90 transition-opacity whitespace-nowrap">
-                        Завершить
+                        {% trans "Завершить" %}
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                     </a>
                     {% endif %}
                 </div>
             </div>
 
-            <!-- AI Assistant Sidebar -->
+            <!-- Study Theory Sidebar -->
             <div class="lg:col-span-1">
                 <div class="rounded-2xl shadow-card overflow-hidden sticky top-24">
                     <!-- Header with Gradient -->
-                    <div class="p-4 gradient-hero">
-                        <div class="flex items-center gap-3">
+                    <div class="p-6 gradient-hero">
+                        <div class="flex items-center gap-3 mb-4">
                             <div class="w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                                <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                                <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20"><path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804V16.5A1.5 1.5 0 003.5 18c1.798 0 3.5-.5 5-1.354A7.968 7.968 0 0012 18a7.968 7.968 0 003.5-.804c1.057.514 2.245.804 3.5.804a1.5 1.5 0 001.5-1.5V4.804A7.968 7.968 0 0015.5 4c-1.255 0-2.443.29-3.5.804A7.968 7.968 0 009 4.804z"></path></svg>
                             </div>
                             <div>
-                                <h3 class="font-heading font-bold text-lg text-white">ИИ-помощник</h3>
-                                <p class="text-xs text-white/80">Я твой ИИ-помощник Hushyor AI</p>
+                                <h3 class="font-heading font-bold text-lg text-white">{% trans "ИИ-помощник" %}</h3>
+                                <p class="text-xs text-white/80">Hushyor AI</p>
                             </div>
                         </div>
+                        
+                        <!-- Study Theory Button -->
+                        <button onclick="openTheoryModal()" class="w-full px-6 py-4 bg-white text-primary rounded-xl font-bold text-lg hover:shadow-2xl hover:scale-105 transition-all duration-200 flex items-center justify-center gap-3">
+                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804V16.5A1.5 1.5 0 003.5 18c1.798 0 3.5-.5 5-1.354A7.968 7.968 0 0012 18a7.968 7.968 0 003.5-.804c1.057.514 2.245.804 3.5.804a1.5 1.5 0 001.5-1.5V4.804A7.968 7.968 0 0015.5 4c-1.255 0-2.443.29-3.5.804A7.968 7.968 0 009 4.804z"></path></svg>
+                            {% trans "Изучить тему" %}
+                        </button>
                     </div>
 
-                    <!-- Chat Messages -->
-                    <div id="aiChatMessages" class="p-4 bg-background min-h-[300px] max-h-[400px] overflow-y-auto space-y-3">
-                        <div class="bg-muted rounded-2xl p-4">
-                            <p class="text-sm text-foreground leading-relaxed">Привет! Я твой ИИ-помощник Hushyor AI. Готов помочь с любым вопросом по задаче. Попробуй решить сам, а если застрянешь — спрашивай!</p>
+                    <!-- Progress Section -->
+                    <div class="p-6 bg-card">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-sm font-medium text-muted-foreground">{% trans "Прогресс" %}</span>
+                            <span class="text-sm font-bold text-primary">{{ current_number }}/{{ total_tasks }}</span>
                         </div>
-                        {% if ai_reply %}
-                        <div class="bg-primary/10 rounded-2xl p-4 border-l-4 border-primary">
-                            <div class="flex items-start gap-2 mb-2">
-                                <svg class="w-5 h-5 text-primary flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
-                                <div class="flex-1">
-                                    <p class="text-xs font-semibold text-primary mb-1">ИИ-помощник</p>
-                                    <div class="text-sm text-foreground leading-relaxed whitespace-pre-wrap">{{ ai_reply }}</div>
-                                </div>
-                            </div>
+                        <div class="h-2 bg-muted rounded-full overflow-hidden">
+                            <div class="h-full bg-gradient-primary transition-all duration-300" style="width: {% widthratio current_number total_tasks 100 %}%;"></div>
                         </div>
-                        {% endif %}
-                    </div>
-
-                    <!-- Action Buttons -->
-                    <div class="px-4 py-3 bg-card border-t border-border/50">
-                        <div class="flex items-center justify-between">
-                            <button type="button" class="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors" onclick="requestTheory()">
-                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804V16.5A1.5 1.5 0 003.5 18c1.798 0 3.5-.5 5-1.354A7.968 7.968 0 0012 18a7.968 7.968 0 003.5-.804c1.057.514 2.245.804 3.5.804a1.5 1.5 0 001.5-1.5V4.804A7.968 7.968 0 0015.5 4c-1.255 0-2.443.29-3.5.804A7.968 7.968 0 009 4.804z"></path></svg>
-                                Теория
-                            </button>
-                            <button type="button" class="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors" onclick="requestHint()">
-                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"></path></svg>
-                                Подсказка
-                            </button>
-                        </div>
-
-                        <!-- Progress Bar -->
-                        <div class="flex items-center gap-2 mb-3">
-                            <button class="p-1 hover:bg-muted rounded transition-colors">
-                                <svg class="w-4 h-4 text-muted-foreground" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
-                            </button>
-                            <div class="flex-1 h-2 bg-muted rounded-full overflow-hidden">
-                                <div class="h-full bg-gradient-primary" style="width: {% widthratio current_number total_tasks 100 %}%;"></div>
-                            </div>
-                            <button class="p-1 hover:bg-muted rounded transition-colors">
-                                <svg class="w-4 h-4 text-muted-foreground" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg>
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Input Form -->
-                    <div class="p-4 bg-card border-t border-border/50">
-                        <form method="post" id="aiForm">
-                        {% csrf_token %}
-                        <input type="hidden" name="ai_message" value="1">
-                        <div class="flex items-center gap-2">
-                            <input type="text" name="ai_message" class="flex-1 px-4 py-3 bg-muted border-0 rounded-2xl text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary" placeholder="Задайте вопрос ИИ...">
-                            <button type="submit" class="p-3 bg-primary hover:bg-primary/90 rounded-full transition-colors">
-                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
-                            </button>
-                        </div>
-                    </form>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </section>
+
+<!-- Theory Modal -->
+<div id="theoryModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 backdrop-blur-sm transition-all duration-300">
+    <div class="relative bg-white rounded-3xl p-8 max-w-4xl w-full mx-4 shadow-2xl max-h-[90vh] overflow-y-auto" style="animation: modal-appear 0.3s ease-out;">
+        <!-- Close Button -->
+        <button onclick="closeTheoryModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors z-10">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+        
+        <!-- Book Icon -->
+        <div class="flex justify-center mb-6">
+            <div class="w-16 h-16 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center shadow-lg">
+                <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20"><path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804V16.5A1.5 1.5 0 003.5 18c1.798 0 3.5-.5 5-1.354A7.968 7.968 0 0012 18a7.968 7.968 0 003.5-.804c1.057.514 2.245.804 3.5.804a1.5 1.5 0 001.5-1.5V4.804A7.968 7.968 0 0015.5 4c-1.255 0-2.443.29-3.5.804A7.968 7.968 0 009 4.804z"></path></svg>
+            </div>
+        </div>
+        
+        <!-- Title -->
+        <h2 class="font-heading font-bold text-3xl text-center text-gray-800 mb-6">{% trans "Теория по теме" %}</h2>
+        
+        <!-- Loading State -->
+        <div id="theoryLoading" class="text-center py-12">
+            <div class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-primary border-t-transparent"></div>
+            <p class="mt-4 text-gray-600">{% trans "Hushyor AI генерирует материал..." %}</p>
+        </div>
+        
+        <!-- Theory Content -->
+        <div id="theoryContent" class="hidden prose prose-lg max-w-none">
+            <!-- AI generated content will be inserted here -->
+        </div>
+        
+        <!-- Close Button -->
+        <div id="theoryCloseBtn" class="hidden mt-8 text-center">
+            <button onclick="closeTheoryModal()" class="px-8 py-3 bg-gradient-to-r from-primary to-secondary text-white rounded-xl font-semibold hover:shadow-lg transition-all">
+                {% trans "Закрыть и продолжить" %}
+            </button>
+        </div>
+    </div>
+</div>
 
 <!-- Success Modal -->
 <div id="successModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 backdrop-blur-sm transition-all duration-300">
@@ -248,8 +245,8 @@
         
         <!-- Success Message -->
         <div class="text-center mb-6">
-            <h2 class="font-heading font-bold text-3xl text-gray-800 mb-2">Отлично!</h2>
-            <p class="text-gray-600 text-lg">Правильный ответ!</p>
+            <h2 class="font-heading font-bold text-3xl text-gray-800 mb-2">{% trans "Отлично!" %}</h2>
+            <p class="text-gray-600 text-lg">{% trans "Правильный ответ!" %}</p>
         </div>
         
         <!-- Points Earned -->
@@ -257,26 +254,27 @@
             <div class="flex items-center justify-center gap-3">
                 <svg class="w-8 h-8 text-yellow-500" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
                 <div>
-                    <p class="text-sm text-gray-600 mb-1">Вы заработали</p>
+                    <p class="text-sm text-gray-600 mb-1">{% trans "Вы заработали" %}</p>
                     <p class="font-heading font-bold text-3xl text-transparent bg-clip-text bg-gradient-to-r from-yellow-600 to-orange-600" id="pointsEarned">+0 XP</p>
                 </div>
             </div>
             <div id="attemptInfo" class="text-center mt-3 text-sm text-gray-500"></div>
+            <div id="totalXpInfo" class="text-center mt-2 text-sm font-semibold text-gray-700"></div>
         </div>
         
         <!-- Correct Answer Display -->
         <div class="bg-green-50 rounded-xl p-4 mb-6 border border-green-200">
-            <p class="text-sm text-gray-600 mb-1">Правильный ответ:</p>
+            <p class="text-sm text-gray-600 mb-1">{% trans "Правильный ответ:" %}</p>
             <p class="font-semibold text-green-800" id="correctAnswerText"></p>
         </div>
         
         <!-- Action Buttons -->
         <div class="flex gap-3">
             <button onclick="closeSuccessModal()" class="flex-1 px-6 py-3 bg-gray-100 text-gray-700 rounded-xl font-semibold hover:bg-gray-200 transition-colors">
-                Закрыть
+                {% trans "Закрыть" %}
             </button>
             <button onclick="goToNextTask()" class="flex-1 px-6 py-3 bg-gradient-to-r from-primary to-secondary text-white rounded-xl font-semibold hover:shadow-lg transition-all">
-                Следующая задача
+                {% trans "Следующая задача" %}
                 <svg class="w-5 h-5 inline ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg>
             </button>
         </div>
@@ -408,7 +406,9 @@
                             optionsObj,
                             data.correct_answer,
                             data.attempts,
-                            data.next_task_id
+                            data.next_task_id,
+                            data.is_authenticated,
+                            data.total_xp
                         );
                     } else {
                         // Неправильный ответ - показываем сообщение об ошибке
@@ -446,10 +446,11 @@
     }
     
     // Функция показа модального окна успеха
-    function showSuccessModal(points, optionsJson, correctAnswer, attempts, nextTaskId) {
+    function showSuccessModal(points, optionsJson, correctAnswer, attempts, nextTaskId, isAuthenticated, totalXp) {
         const modal = document.getElementById('successModal');
         const pointsElement = document.getElementById('pointsEarned');
         const attemptInfo = document.getElementById('attemptInfo');
+        const totalXpInfo = document.getElementById('totalXpInfo');
         const correctAnswerText = document.getElementById('correctAnswerText');
         
         // Устанавливаем данные
@@ -461,6 +462,11 @@
             attemptInfo.textContent = 'Решено с первой попытки! 🎉';
         }
         
+        // Показываем общий счет
+        if (totalXp !== undefined) {
+            totalXpInfo.textContent = `Всего баллов: ${totalXp} XP`;
+        }
+        
         // Парсим опции и находим правильный ответ
         try {
             const options = JSON.parse(optionsJson.replace(/'/g, '"'));
@@ -469,8 +475,9 @@
             correctAnswerText.textContent = correctAnswer;
         }
         
-        // Сохраняем ID следующей задачи
+        // Сохраняем ID следующей задачи и статус аутентификации
         window.nextTaskId = nextTaskId;
+        window.isUserAuthenticated = isAuthenticated;
         
         // Показываем модальное окно
         modal.classList.remove('hidden');
@@ -518,6 +525,12 @@
     
     // Функция перехода к следующей задаче
     function goToNextTask() {
+        // Если пользователь не авторизован, перенаправляем на страницу регистрации
+        if (!window.isUserAuthenticated) {
+            window.location.href = '/register/';
+            return;
+        }
+        
         if (window.nextTaskId) {
             window.location.href = `/task/${window.nextTaskId}/`;
         } else {
@@ -549,29 +562,71 @@
         }, 10);
     }
 
-    // AJAX запрос для ИИ-помощника
-    function requestAI(type) {
-        const chatMessages = document.getElementById('aiChatMessages');
-        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    // Открыть модальное окно теории
+    function openTheoryModal() {
+        const modal = document.getElementById('theoryModal');
+        const loadingDiv = document.getElementById('theoryLoading');
+        const contentDiv = document.getElementById('theoryContent');
+        const closeBtn = document.getElementById('theoryCloseBtn');
         
-        // Показываем индикатор загрузки
-        const loadingMessage = document.createElement('div');
-        loadingMessage.className = 'bg-primary/10 rounded-2xl p-4 border-l-4 border-primary';
-        loadingMessage.id = 'loadingMessage';
-        loadingMessage.innerHTML = `
-            <div class="flex items-start gap-2">
-                <svg class="w-5 h-5 text-primary flex-shrink-0 mt-0.5 animate-spin" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                <div class="flex-1">
-                    <p class="text-xs font-semibold text-primary mb-1">ИИ-помощник</p>
-                    <p class="text-sm text-muted-foreground">ИИ генерирует ответ...</p>
-                </div>
-            </div>
-        `;
-        chatMessages.appendChild(loadingMessage);
-        chatMessages.scrollTop = chatMessages.scrollHeight;
+        // Показываем модальное окно
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        
+        // Сбрасываем состояние
+        loadingDiv.classList.remove('hidden');
+        contentDiv.classList.add('hidden');
+        closeBtn.classList.add('hidden');
+        contentDiv.innerHTML = '';
+        
+        // Запрашиваем теорию через AJAX
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        const formData = new FormData();
+        formData.append('csrfmiddlewaretoken', csrfToken);
+        formData.append('request_theory', '1');
+        
+        fetch(window.location.href, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            loadingDiv.classList.add('hidden');
+            
+            if (data.success && data.theory) {
+                // Форматируем текст с переносами строк
+                const formattedTheory = data.theory.replace(/\n/g, '<br><br>');
+                contentDiv.innerHTML = `<div class="text-gray-700 leading-relaxed">${formattedTheory}</div>`;
+                contentDiv.classList.remove('hidden');
+                closeBtn.classList.remove('hidden');
+            } else {
+                contentDiv.innerHTML = `<div class="text-center text-red-600">${data.error || 'Ошибка при загрузке теории'}</div>`;
+                contentDiv.classList.remove('hidden');
+                closeBtn.classList.remove('hidden');
+            }
+        })
+        .catch(error => {
+            loadingDiv.classList.add('hidden');
+            contentDiv.innerHTML = '<div class="text-center text-red-600">Ошибка при загрузке теории. Попробуйте позже.</div>';
+            contentDiv.classList.remove('hidden');
+            closeBtn.classList.remove('hidden');
+        });
+    }
+    
+    // Закрыть модальное окно теории
+    function closeTheoryModal() {
+        const modal = document.getElementById('theoryModal');
+        modal.classList.remove('flex');
+        modal.classList.add('hidden');
+    }
+    
+    // AJAX запрос для ИИ-помощника (оставляем для совместимости)
+    function requestAI(type) {
+        // Эта функция больше не используется, но оставляем для совместимости
+        console.log('requestAI called with type:', type);
         
         // Формируем данные для отправки
         const formData = new FormData();

@@ -10,9 +10,10 @@ GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')
 if GEMINI_API_KEY and GEMINI_API_KEY != 'your-gemini-api-key-here':
     genai.configure(api_key=GEMINI_API_KEY)
 
-def get_theory_lesson(task_question, task_subject):
+def get_theory_lesson(task_question, task_subject, language='ru'):
     """
     Генерирует короткий урок с теорией и примерами для задачи
+    language: 'ru' для русского, 'tg' для таджикского
     """
     import logging
     import hashlib
@@ -24,18 +25,31 @@ def get_theory_lesson(task_question, task_subject):
         logger.warning("Gemini API key not configured")
         return "⚠️ API ключ Gemini не настроен. Добавьте GEMINI_API_KEY в файл .env"
     
-    # Кэширование ответов
-    cache_key = hashlib.md5(f"theory_{task_question}_{task_subject}".encode()).hexdigest()
+    # Кэширование ответов с учетом языка
+    cache_key = hashlib.md5(f"theory_{task_question}_{task_subject}_{language}".encode()).hexdigest()
     cached = cache.get(cache_key)
     if cached:
-        logger.debug(f"Returning cached theory for {task_subject}")
+        logger.debug(f"Returning cached theory for {task_subject} in {language}")
         return cached
     
     try:
-        logger.info(f"Generating theory lesson for subject: {task_subject}")
+        logger.info(f"Generating theory lesson for subject: {task_subject} in language: {language}")
         model = genai.GenerativeModel('gemini-2.5-flash')
         
-        prompt = f"""Ты - опытный преподаватель по предмету "{task_subject}".
+        # Выбираем язык для промпта
+        if language == 'tg':
+            prompt = f"""Шумо омӯзгори ботаҷриба аз фанни "{task_subject}" ҳастед.
+
+Масъалаи хонанда: {task_question}
+
+Дарси кӯтоҳ (3-4 банд) бо назария дар бораи ин масъала эҷод кунед:
+1. Консепсияи асосиро бо забони содда шарҳ диҳед
+2. 1-2 мисол бо ҳалли онҳо оваред
+3. Маслиҳати амалӣ диҳед, ки чӣ тавр чунин масъалаҳоро ҳал кардан лозим аст
+
+Ба забони тоҷикӣ, фаҳмо ва мураттаб нависед."""
+        else:
+            prompt = f"""Ты - опытный преподаватель по предмету "{task_subject}".
 
 Задача ученика: {task_question}
 

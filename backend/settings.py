@@ -154,6 +154,7 @@ MIDDLEWARE = [
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'corsheaders.middleware.CorsMiddleware',  # CORS для мобильного приложения
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.locale.LocaleMiddleware',  # i18n middleware
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -223,11 +224,22 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'tg'  # Таджикский язык по умолчанию
 
-TIME_ZONE = 'UTC'
+LANGUAGES = [
+    ('tg', 'Тоҷикӣ'),  # Таджикский
+    ('ru', 'Русский'),  # Русский
+]
+
+LOCALE_PATHS = [
+    BASE_DIR / 'locale',
+]
+
+TIME_ZONE = 'Asia/Dushanbe'
 
 USE_I18N = True
+
+USE_L10N = True
 
 USE_TZ = True
 

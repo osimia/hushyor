@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load i18n %}
 {% block title %}hushyor - {{ subject.title }}{% endblock %}
 {% block content %}
 
@@ -9,7 +10,7 @@
         <div class="mb-8">
             <a href="/" class="inline-flex items-center text-muted-foreground hover:text-foreground transition-colors mb-6">
                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
-                Назад
+                {% trans "Назад" %}
             </a>
             
             <div class="flex items-center gap-3 mb-4">
@@ -19,12 +20,12 @@
                 <h1 class="font-heading font-bold text-2xl text-foreground">{{ subject.title }}</h1>
             </div>
 
-            <p class="text-sm text-foreground font-medium mb-3">Общий прогресс</p>
+            <p class="text-sm text-foreground font-medium mb-3">{% trans "Общий прогресс" %}</p>
             
             <!-- Compact Progress Bar -->
             <div class="bg-white rounded-xl p-4 shadow-sm border border-border/50 mb-4">
                 <div class="flex items-center justify-between mb-2">
-                    <span class="text-sm font-medium text-foreground">Прогресс</span>
+                    <span class="text-sm font-medium text-foreground">{% trans "Прогресс" %}</span>
                     <span class="text-lg font-bold text-primary">{{ progress_percentage }}%</span>
                 </div>
                 <div class="h-3 bg-muted rounded-full overflow-hidden">
@@ -39,7 +40,7 @@
                 </div>
                 <div class="flex items-center gap-2 bg-white px-3 py-2 rounded-lg shadow-sm">
                     <svg class="w-4 h-4 text-primary" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"></path></svg>
-                    <span class="font-semibold text-foreground">{{ total_items }} тем</span>
+                    <span class="font-semibold text-foreground">{{ total_items }} {% trans "тем" %}</span>
                 </div>
             </div>
         </div>
@@ -81,7 +82,7 @@
                                         {% endfor %}
                                     </div>
                                     
-                                    <p class="text-sm text-muted-foreground">{{ topic.completed_count }}/{{ topic.total_count }} задач</p>
+                                    <p class="text-sm text-muted-foreground">{{ topic.completed_count }}/{{ topic.total_count }} {% trans "задач" %}</p>
                                 </div>
                             </div>
                         {% if not topic.is_locked %}
@@ -92,7 +93,7 @@
                     </div>
                     {% empty %}
                     <div class="text-center py-12">
-                        <p class="text-muted-foreground text-lg">Темы для этого предмета пока не добавлены</p>
+                        <p class="text-muted-foreground text-lg">{% trans "Темы для этого предмета пока не добавлены" %}</p>
                     </div>
                     {% endfor %}
                 </div>
@@ -102,14 +103,14 @@
             <div class="lg:col-span-1 space-y-6">
                 <!-- Statistics Card -->
                 <div class="bg-card rounded-2xl p-6 shadow-card border border-border/50">
-                    <h3 class="font-heading font-bold text-lg mb-4">Статистика</h3>
+                    <h3 class="font-heading font-bold text-lg mb-4">{% trans "Статистика" %}</h3>
                     <div class="space-y-3">
                         <div class="flex justify-between items-center">
-                            <span class="text-sm text-muted-foreground">Тем</span>
+                            <span class="text-sm text-muted-foreground">{% trans "Тем" %}</span>
                             <span class="font-semibold text-foreground">{{ total_items }}</span>
                         </div>
                         <div class="flex justify-between items-center">
-                            <span class="text-sm text-muted-foreground">Всего задач</span>
+                            <span class="text-sm text-muted-foreground">{% trans "Всего задач" %}</span>
                             <span class="font-semibold text-foreground">{{ total_tasks }}</span>
                         </div>
                     </div>
@@ -119,11 +120,11 @@
                 <div class="bg-gradient-primary rounded-2xl p-6 shadow-glow text-white">
                     <div class="flex items-center gap-3 mb-3">
                         <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"></path></svg>
-                        <h3 class="font-heading font-bold text-lg">Симулятор экзамена</h3>
+                        <h3 class="font-heading font-bold text-lg">{% trans "Симулятор экзамена" %}</h3>
                     </div>
-                    <p class="text-white/90 text-sm mb-4">3 часа 55 минут</p>
+                    <p class="text-white/90 text-sm mb-4">{% trans "3 часа 55 минут" %}</p>
                     <button class="w-full px-4 py-3 bg-white text-primary rounded-xl font-semibold hover:bg-white/90 transition-colors">
-                        Начать пробный экзамен
+                        {% trans "Начать пробный экзамен" %}
                     </button>
                 </div>
             </div>
