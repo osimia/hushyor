@@ -153,9 +153,21 @@ def topic_view(request, topic_id):
 
 def task_view(request, task_id):
     from .models import Task, TaskAttempt, UserProfile, Leaderboard
-    from .ai_helper import get_theory_lesson, get_hint, get_ai_response
     from django.http import JsonResponse
     import logging
+    
+    # Импортируем AI helper с обработкой ошибок
+    try:
+        from .ai_helper import get_theory_lesson, get_hint, get_ai_response
+    except ImportError as e:
+        logging.error(f"Failed to import AI helper: {e}")
+        # Создаем заглушки если импорт не удался
+        def get_theory_lesson(*args, **kwargs):
+            return "⚠️ AI помощник временно недоступен"
+        def get_hint(*args, **kwargs):
+            return "⚠️ AI помощник временно недоступен"
+        def get_ai_response(*args, **kwargs):
+            return "⚠️ AI помощник временно недоступен"
     
     logger = logging.getLogger(__name__)
     

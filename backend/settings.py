@@ -41,7 +41,7 @@ if _is_production:
     DEBUG = False
 
 # ALLOWED_HOSTS configuration
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'hushyor.com', 'www.hushyor.com']
 
 # Add Railway hosts if RAILWAY_ENVIRONMENT is set
 if os.getenv('RAILWAY_ENVIRONMENT'):
